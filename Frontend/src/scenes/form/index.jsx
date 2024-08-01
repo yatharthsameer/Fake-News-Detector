@@ -246,7 +246,7 @@ const Form = () => {
               </IconButton>
             </Box>
           )}
-          <Typography variant="body1" sx={{ mb: 2 }}>
+          <Typography variant="body1" sx={{ mb: 2, color: "black" }}>
             {csvInstructions}
           </Typography>
           {isLoading ? (
@@ -257,7 +257,7 @@ const Form = () => {
               height="50vh"
               flexDirection="column"
             >
-              <CircularProgress sx={{ color: colors.blueAccent[600] }} />
+              <CircularProgress sx={{ color: "black" }} />
               <Typography variant="h6" sx={{ mt: 2 }}>
                 Adding entries to the database, please wait...
               </Typography>
