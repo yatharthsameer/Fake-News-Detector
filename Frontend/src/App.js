@@ -19,6 +19,7 @@ import Login from './scenes/login';
 import { AuthProvider } from './context/AuthContext';  // Import AuthProvider
 import Trendspage from "./scenes/trendspage";
 import ProtectedForm from './scenes/protectedForm'; 
+import About from './scenes/about';
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar] = useState(true);
@@ -47,6 +48,7 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/geography" element={<Geography />} />
+              <Route path="/about" element={<About />} />
             </Routes>
           </main>
         </div>

@@ -76,6 +76,12 @@ const Sidebar = () => {
     //   to: "/form",
     //   icon: <ReceiptOutlinedIcon sx={{ color: "white" }} />,
     // },
+    // add menu item for About page
+    {
+      title: "About",
+      to: "/about",
+      icon: <ReceiptOutlinedIcon sx={{ color: "white" }} />,
+    },
   ];
 
   const drawerContent = (
