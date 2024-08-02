@@ -15,6 +15,7 @@ import re
 from collections import defaultdict
 import spacy
 import numpy as np
+
 # from multiprocessing import Pool, Process
 from datetime import datetime
 
@@ -76,14 +77,16 @@ def load_data(filepath="csvProcessing/allData.json"):
 
 
 class bm25:
-    def __init__(self, docs, orig_docs = None, use_lemma=True):
+    def __init__(self, docs, orig_docs=None, use_lemma=True):
         self.use_lemma = use_lemma
         ts = time()
         self.nlp = spacy.load("en_core_web_sm")
         self.docs = [self.clean(x) for x in docs]
         self.orig_docs = orig_docs
 
-        assert not use_lemma or orig_docs, "Require original docs for doc ID checking during lemma"
+        assert (
+            not use_lemma or orig_docs
+        ), "Require original docs for doc ID checking during lemma"
         assert len(docs) == len(orig_docs)
 
         tokenized_corpus = self.tokenize_all(docs, orig_docs)
@@ -107,10 +110,8 @@ class bm25:
 
         self.scorer = BM25Plus(tokenized_corpus)
 
-
     def clean(self, text: str):
         return text.lower()
-
 
     def tokenize_all(self, docs, orig_docs):
         if self.use_lemma:
@@ -128,22 +129,26 @@ class bm25:
             tokenized_corpus = []
             updateFile = False
             for d, od in zip(docs, orig_docs):
-                if od['key'] in lemma_data:
-                    tokenized_corpus.append(lemma_data[od['key']])
+                if od["key"] in lemma_data:
+                    tokenized_corpus.append(lemma_data[od["key"]])
                 else:
                     tokenized_corpus.append(self.tokenize(d))
                     updateFile = True
 
             if updateFile:
                 print("UPDATING LEMMA FILE")
-                with open("csvProcessing/lemmaData.json", 'w') as fw:
-                    json.dump({od['key'] : le for le, od in zip(tokenized_corpus, orig_docs)}, fw, indent=4, ensure_ascii=False)
+                with open("csvProcessing/lemmaData.json", "w") as fw:
+                    json.dump(
+                        {od["key"]: le for le, od in zip(tokenized_corpus, orig_docs)},
+                        fw,
+                        indent=4,
+                        ensure_ascii=False,
+                    )
 
         else:
             tokenized_corpus = map(self.tokenize, docs)
 
         return tokenized_corpus
-
 
     def tokenize(self, text: str):
         if self.use_lemma:
@@ -289,7 +294,7 @@ class ensemble:
     def __call__(self, query, **kwargs):
         return self.rank(query, **kwargs)
 
-    def add_docs(self, docs, orig_docs = None):
+    def add_docs(self, docs, orig_docs=None):
         self.docs.extend(docs)
 
         if self.orig_docs:
@@ -362,10 +367,12 @@ class ensemble:
 
             if transquery:
                 bm25idx2, bm25res2 = self.BM25model.rank(transquery)
-                indices |= set(bm25idx2)
+                # NEW CHANGE: CLIPPING INPUT INDICES FOR BS
+                indices |= set(bm25idx2[:15])
                 results.append(bm25idx2)
 
-            indices |= set(bm25idx)
+            # NEW CHANGE: CLIPPING INPUT INDICES FOR BS
+            indices |= set(bm25idx[:15])
             results.append(bm25idx)
 
         if self.use_ft:
@@ -373,10 +380,12 @@ class ensemble:
 
             if transquery:
                 ftidx2, ftres2 = self.FTmodel.rank(transquery)
-                indices |= set(ftidx2)
+                # NEW CHANGE: CLIPPING INPUT INDICES FOR BS
+                indices |= set(ftidx2[:15])
                 results.append(ftidx2)
 
-            indices |= set(ftidx)
+            # NEW CHANGE: CLIPPING INPUT INDICES FOR BS
+            indices |= set(ftidx[:15])
             results.append(ftidx)
 
         if self.use_bs:
