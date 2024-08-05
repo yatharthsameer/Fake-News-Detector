@@ -297,12 +297,24 @@ const Trendspage = () => {
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
-          title="Trends Page"
+          title="Trends based misinformation"
+          subtitle={
+            <>
+              Recycled dis/misinformation is often deployed by bad actors to
+              create confusion and mislead recipients.
+              <br /> This section shows you already debunked dis/misinformation
+              based on:
+              <br /> <b>Current trends </b>– Fact-checks by our team based on
+              what is trending on the web.
+              <br /> <b>Historical trends</b> – Fact-checks from the past years,
+              on the same date and week +/- one days.
+            </>
+          }
         />
       </Box>
-      <Grid container spacing={2} >
+      <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
-          <Box  p="20px">
+          <Box p="20px">
             <Typography variant="h5" color={colors.grey[100]} mb="10px">
               Based on Current Trends
             </Typography>
@@ -334,7 +346,7 @@ const Trendspage = () => {
           </Box>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Box  p="20px">
+          <Box p="20px">
             <Typography variant="h5" color={colors.grey[100]} mb="10px">
               Based on Historical Trends
             </Typography>
