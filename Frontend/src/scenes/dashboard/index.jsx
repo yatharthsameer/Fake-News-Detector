@@ -247,10 +247,24 @@ else if (searchType === "image" && selectedImageFile) {
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
-          title="Search fact-checks"
-          subtitle="Welcome! Search here for fact-checks using text or image queries"
+          title="MESSAGE CHECK "
+          subtitle={
+            <>
+              Welcome to MESSAGE CHECK!
+              <br />
+              If you would like to verify the authenticity of a message or image
+              you have received OR a social media post, use the search bar below
+              by inserting a query in text or uploading the image. <br />
+              The system will show posts with similar misinformation and how
+              they were debunked by fact-checkers at Vishvas News.
+              <br />
+               You can also search about important topics and people using
+              keywords.
+            </>
+          }
         />
       </Box>
+
       <Box mb="20px" display="flex" alignItems="center">
         <FormLabel component="legend" sx={{ marginRight: 2, color: "black" }}>
           Search Type
@@ -282,7 +296,7 @@ else if (searchType === "image" && selectedImageFile) {
             label="Image Upload"
             sx={{ color: "black" }}
           />
-        {/* <FormControlLabel
+          {/* <FormControlLabel
             value="link"
             control={
               <Radio
