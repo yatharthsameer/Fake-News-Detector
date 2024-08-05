@@ -307,7 +307,7 @@ const Trendspage = () => {
               <br /> <b>Current trends </b>– Fact-checks by our team based on
               what is trending on the web.
               <br /> <b>Historical trends</b> – Fact-checks from the past years,
-              on the same date and week +/- one days.
+              on the same date and week +/- three days.
             </>
           }
         />
