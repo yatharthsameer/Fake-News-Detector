@@ -173,14 +173,15 @@ const About = () => {
             </Typography>
 
             {/* <Divider sx={{ my: 3 }} /> */}
-
-            <Typography
-              variant="h5"
-              gutterBottom
-              sx={{ color: "black", fontWeight: "bold" }}
-            >
-              About Vishvas News
-            </Typography>
+<Typography
+  variant="h5"
+  gutterBottom
+  sx={{ color: "blue", fontWeight: "bold" }}
+>
+  <a href="https://www.vishvasnews.com/about-us/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
+    About Vishvas News
+  </a>
+</Typography>
 
             <Typography
               variant="body1"
