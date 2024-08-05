@@ -4,8 +4,8 @@ import { Box, Typography, Container, Card, CardContent } from "@mui/material";
 const About = () => {
   return (
     <Container maxWidth="xl">
-        {/* make container max width even larger
-         */}
+      {/* make container max width even larger
+       */}
 
       <Box mt={5} mb={2}>
         <Box m="20px">
@@ -185,9 +185,13 @@ const About = () => {
             <Typography
               variant="body1"
               paragraph
-              sx={{ color: "black", fontFamily: "Arial, sans-serif" }}
+              sx={{
+                color: "black",
+                fontFamily: "Arial, sans-serif",
+                fontWeight: "bold",
+              }}
             >
-              Contact
+              Contact Us
             </Typography>
 
             <Typography
