@@ -2,20 +2,16 @@ import React, { useState, useContext } from "react";
 import {
   Box,
   IconButton,
-  Typography,
+  Divider,
   useTheme,
-  Switch,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   useMediaQuery,
   Drawer,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
@@ -69,14 +65,7 @@ const Sidebar = () => {
       title: "Trends",
       to: "/trendspage",
       icon: <CalendarTodayOutlinedIcon sx={{ color: "white" }} />,
-    }
-    ,
-    // {
-    //   title: "Add fact-check(s)",
-    //   to: "/form",
-    //   icon: <ReceiptOutlinedIcon sx={{ color: "white" }} />,
-    // },
-    // add menu item for About page
+    },
     {
       title: "About",
       to: "/about",
@@ -111,6 +100,7 @@ const Sidebar = () => {
               width: "100%",
               cursor: "pointer",
             }}
+            onClick={() => navigate("/")}
           />
         </Box>
         <Divider />
@@ -140,7 +130,6 @@ const Sidebar = () => {
           ))}
         </List>
       </Box>
-      
     </Box>
   );
 
