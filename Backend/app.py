@@ -190,6 +190,9 @@ st = Search_Setup(
 st.run_index()
 
 
+from PIL import Image
+
+
 @app.route("/api/upload", methods=["POST"])
 def upload_file():
     file_path = "csvProcessing/allData.json"  # Ensure this path is correct
@@ -208,9 +211,17 @@ def upload_file():
 
     if file:
         try:
-            filename = secure_filename("test.jpg")
+            filename = "test.jpg"
             filepath = os.path.join("./", filename)
-            file.save(filepath)
+
+            # Check if the uploaded file is PNG and convert it to JPG
+            image = Image.open(file.stream)
+            if image.format == "PNG":
+                image = image.convert("RGB")  # Convert to RGB
+                image.save(filepath, "JPEG")
+            else:
+                image.save(filepath)  # Save as JPG directly if not PNG
+
         except Exception as e:
             return jsonify({"error": f"Failed to save file: {str(e)}"}), 500
 
@@ -226,22 +237,11 @@ def upload_file():
             )
 
         try:
-            data = {}
-            with open("csvProcessing/allData.json", "r", encoding="utf-8") as file:
-                data = json.load(file)
-        except FileNotFoundError:
-            return jsonify({"error": "Data file not found"}), 500
-        except json.JSONDecodeError:
-            return jsonify({"error": "Error decoding JSON data"}), 500
-        except Exception as e:
-            return jsonify({"error": f"Error loading data: {str(e)}"}), 500
-
-        try:
-            response_data = []
+            response_data = {}
             seen_urls = set()  # Set to keep track of URLs we've already added
 
             for img_info in similar_images:
-                # Extract the story index and image number from the image name
+                # Extract the story index from the image filename
                 image_filename = os.path.basename(img_info["path"])
                 image_parts = image_filename.split("_")
                 story_index = image_parts[1]  # This is the index of the story object
@@ -250,20 +250,32 @@ def upload_file():
                     corresponding_object = data[story_index]
                     story_url = corresponding_object.get("Story_URL")
 
-                    # Check if we've already added this story URL
                     if story_url not in seen_urls:
-                        if img_info["match_percentage"] > 60:
-                            response_data.append(
-                                {
-                                    "percentage": round(
-                                        img_info["match_percentage"], 2
-                                    ),
-                                    "data": corresponding_object,
-                                }
-                            )
-                            seen_urls.add(story_url)  # Mark this URL as seen
+                        # If the story is already in response_data, check if the new match_percentage is higher
+                        if story_index in response_data:
+                            if (
+                                img_info["match_percentage"]
+                                > response_data[story_index]["percentage"]
+                            ):
+                                response_data[story_index]["percentage"] = round(
+                                    img_info["match_percentage"], 2
+                                )
+                        else:
+                            response_data[story_index] = {
+                                "percentage": round(img_info["match_percentage"], 2),
+                                "data": corresponding_object,
+                            }
+                        seen_urls.add(story_url)  # Mark this URL as seen
 
-            return jsonify(response_data)
+            # Convert response_data to a list, sorted by the highest match percentage
+            sorted_response = [
+                {"percentage": val["percentage"], "data": val["data"]}
+                for val in sorted(
+                    response_data.values(), key=lambda x: x["percentage"], reverse=True
+                )
+            ]
+
+            return jsonify(sorted_response)
         except KeyError as e:
             return jsonify({"error": f"Data missing key: {str(e)}"}), 500
         except Exception as e:
@@ -308,8 +320,12 @@ def upload_image_url():
             # Create a PIL Image from the binary data
             image = Image.open(BytesIO(response.content))
 
-            # Save the image to a temporary file
-            image.save(temp_image_path)
+            # Check if the image is PNG and convert to JPG
+            if image.format == "PNG":
+                image = image.convert("RGB")
+                image.save(temp_image_path, "JPEG")
+            else:
+                image.save(temp_image_path)  # Save as JPG directly if not PNG
 
         except UnidentifiedImageError:
             return (
@@ -329,31 +345,51 @@ def upload_image_url():
             image_path=temp_image_path, number_of_images=20
         )
 
-        response_data = []
-        seen_urls = set()  # Set to keep track of URLs we've already added
+        try:
+            response_data = {}
+            seen_urls = set()  # Set to keep track of URLs we've already added
 
-        for img_info in similar_images:
-            # Extract the story index and image number from the image name
-            image_filename = os.path.basename(img_info["path"])
-            image_parts = image_filename.split("_")
-            story_index = image_parts[1]  # This is the index of the story object
+            for img_info in similar_images:
+                # Extract the story index from the image filename
+                image_filename = os.path.basename(img_info["path"])
+                image_parts = image_filename.split("_")
+                story_index = image_parts[1]  # This is the index of the story object
 
-            if story_index in data:
-                corresponding_object = data[story_index]
-                story_url = corresponding_object.get("Story_URL")
+                if story_index in data:
+                    corresponding_object = data[story_index]
+                    story_url = corresponding_object.get("Story_URL")
 
-                # Check if we've already added this story URL
-                if story_url not in seen_urls:
-                    if img_info["match_percentage"] > 60:
-                        response_data.append(
-                            {
+                    if story_url not in seen_urls:
+                        # If the story is already in response_data, check if the new match_percentage is higher
+                        if story_index in response_data:
+                            if (
+                                img_info["match_percentage"]
+                                > response_data[story_index]["percentage"]
+                            ):
+                                response_data[story_index]["percentage"] = round(
+                                    img_info["match_percentage"], 2
+                                )
+                        else:
+                            response_data[story_index] = {
                                 "percentage": round(img_info["match_percentage"], 2),
                                 "data": corresponding_object,
                             }
-                        )
                         seen_urls.add(story_url)  # Mark this URL as seen
 
-        return jsonify(response_data)
+            # Convert response_data to a list, sorted by the highest match percentage
+            sorted_response = [
+                {"percentage": val["percentage"], "data": val["data"]}
+                for val in sorted(
+                    response_data.values(), key=lambda x: x["percentage"], reverse=True
+                )
+            ]
+
+            return jsonify(sorted_response)
+
+        except KeyError as e:
+            return jsonify({"error": f"Data missing key: {str(e)}"}), 500
+        except Exception as e:
+            return jsonify({"error": f"Error processing response data: {str(e)}"}), 500
 
     except requests.RequestException as e:
         return jsonify({"error": f"Error fetching image: {str(e)}"}), 500
@@ -510,10 +546,20 @@ def append_story(request_data):
         for idx, image_url in enumerate(image_urls, start=1):
             image_response = requests.get(image_url)
             if image_response.status_code == 200:
-                image_filename = f"image_{new_index}_{idx}.jpg"
-                image_path = os.path.join("./data", image_filename)
-                with open(image_path, "wb") as f:
-                    f.write(image_response.content)
+                # Open the image from the response
+                image = Image.open(BytesIO(image_response.content))
+
+                # Check if the image is PNG and convert to JPG
+                if image.format == "PNG":
+                    image = image.convert("RGB")
+                    image_filename = f"image_{new_index}_{idx}.jpg"
+                    image_path = os.path.join("./data", image_filename)
+                    image.save(image_path, "JPEG")
+                else:
+                    image_filename = f"image_{new_index}_{idx}.jpg"
+                    image_path = os.path.join("./data", image_filename)
+                    with open(image_path, "wb") as f:
+                        f.write(image_response.content)
 
                 # Add the image to the index
                 try:

@@ -474,13 +474,11 @@ const Dashboard = () => {
             (similar) to your query. The percentage score indicates the match of
             your query with the closest matching news-story that appears at the
             top of the list. Other similar news-stories are also shown for your
-            information.
-    
-            If your query does not show a relevant match, it is automatically
-            re-directed to the team of fact-checkers at Vishvas News. If the
-            claim contained in the query is dis/misinformation, they verify and
-            debunk it. The fact-check is then published on the Vishvas News
-            website.
+            information. If your query does not show a relevant match, it is
+            automatically re-directed to the team of fact-checkers at Vishvas
+            News. If the claim contained in the query is dis/misinformation,
+            they verify and debunk it. The fact-check is then published on the
+            Vishvas News website.
           </Typography>
         </Box>
       )}
@@ -649,13 +647,16 @@ const Dashboard = () => {
                                     }}
                                   >
                                     <img
-                                      src={result.data.img}
+                                      src={
+                                        result.data.img &&
+                                        result.data.img.length > 0
+                                          ? result.data.img[0]
+                                          : ""
+                                      }
                                       alt="News"
-                                      style={{
-                                        width: isXs ? "100%" : "110px",
-                                        height: isXs ? "auto" : "95px",
-                                        objectFit: "contain",
-                                      }}
+                                      width="110px"
+                                      height="95px"
+                                      style={{ marginRight: "20px" }}
                                     />
                                   </ButtonBase>
                                   <div style={{ flex: 1, minWidth: "0" }}>
