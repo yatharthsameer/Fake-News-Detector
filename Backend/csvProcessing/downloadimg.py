@@ -14,11 +14,12 @@ def extract_img_links(json_path):
         data = json.load(file)
         image_links = []
         for index, story in data.items():
-            img_count = 1
-            for key, value in story.items():
-                if key.startswith("img") and value != "NA" and value:
-                    image_links.append((index, img_count, value))
-                    img_count += 1
+            if isinstance(story.get("img"), list):  # Check if 'img' is a list
+                for img_count, img_url in enumerate(story["img"], start=1):
+                    if (
+                        img_url != "NA" and img_url
+                    ):  # Ensure the URL is not 'NA' or empty
+                        image_links.append((index, img_count, img_url))
         return image_links
 
 
