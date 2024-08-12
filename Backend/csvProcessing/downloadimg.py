@@ -1,6 +1,8 @@
 import json
 import requests
 import os
+from PIL import Image
+from io import BytesIO
 
 # Headers for web requests
 headers = {
@@ -33,9 +35,16 @@ def download_images(urls_with_ids, folder):
         try:
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
-                file_path = f"{folder}/image_{index}_{img_number}.jpg"
-                with open(file_path, "wb") as file:
-                    file.write(response.content)
+                # Convert and save the image if it's in PNG format
+                image = Image.open(BytesIO(response.content))
+                if image.format == "PNG":
+                    image = image.convert("RGB")  # Convert PNG to JPG (RGB mode)
+                    file_path = f"{folder}/image_{index}_{img_number}.jpg"
+                    image.save(file_path, "JPEG")
+                else:
+                    file_path = f"{folder}/image_{index}_{img_number}.jpg"
+                    with open(file_path, "wb") as file:
+                        file.write(response.content)
                 print(f"Downloaded image for index {index} as {file_path}")
             else:
                 print(
