@@ -253,15 +253,24 @@ const Dashboard = () => {
           subtitle={
             <>
               Welcome to MESSAGE CHECK!
+              <br /> <br />
+              Want to{" "}
+              <b>
+                verify the authenticity of a message or image? Or, a social
+                media post ?{" "}
+              </b>
               <br />
-              If you would like to verify the authenticity of a message or image
-              you have received OR a social media post, use the search bar below
-              by inserting a query in text or uploading the image. <br />
+              Use the search bar below by inserting a query in text or uploading
+              the image.
+              <br /> <br />
               The system will show posts with similar misinformation and how
               they were debunked by fact-checkers at Vishvas News.
               <br />
-              You can also search for debunked dis/misinformation about
-              important topics and persons using keywords.
+              You can also search for{" "}
+              <b>
+                debunked dis/misinformation about important topics and persons{" "}
+              </b>{" "}
+              using keywords.
             </>
           }
         />
@@ -870,7 +879,12 @@ const Dashboard = () => {
                                     }}
                                   >
                                     <img
-                                      src={result.data.img}
+                                      src={
+                                        result.data.img &&
+                                        result.data.img.length > 0
+                                          ? result.data.img[0]
+                                          : ""
+                                      }
                                       alt="News"
                                       width="110px"
                                       height="95px"

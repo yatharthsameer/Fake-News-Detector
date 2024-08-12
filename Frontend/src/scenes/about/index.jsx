@@ -64,9 +64,14 @@ const About = () => {
               Kharagpur:
             </Typography>
             <Typography
-              variant="body1"
+              variant="body2"
               paragraph
-              sx={{ color: "black", fontFamily: "Arial, sans-serif" }}
+              //i want the text to be italicized as well
+              sx={{
+                color: "black",
+                fontFamily: "Arial, sans-serif",
+                fontStyle: "italic",
+              }}
             >
               Processing the Vishvas News database of debunked news-stories:
               Vishvas News shared with us approx. 10,000 news-stories that have
@@ -78,9 +83,13 @@ const About = () => {
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="body2"
               paragraph
-              sx={{ color: "black", fontFamily: "Arial, sans-serif" }}
+              sx={{
+                color: "black",
+                fontFamily: "Arial, sans-serif",
+                fontStyle: "italic",
+              }}
             >
               Text Queries in English: Our text-matching system takes a text
               query as input and produces a list of stories from the database
@@ -98,9 +107,13 @@ const About = () => {
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="body2"
               paragraph
-              sx={{ color: "black", fontFamily: "Arial, sans-serif" }}
+              sx={{
+                color: "black",
+                fontFamily: "Arial, sans-serif",
+                fontStyle: "italic",
+              }}
             >
               Each of the three models has been used for a specific reason –
               <ul>
@@ -122,9 +135,13 @@ const About = () => {
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="body2"
               paragraph
-              sx={{ color: "black", fontFamily: "Arial, sans-serif" }}
+              sx={{
+                color: "black",
+                fontFamily: "Arial, sans-serif",
+                fontStyle: "italic",
+              }}
             >
               Note that we load the BERTScore model with
               distilbert-base-multilingual which is a relatively lightweight
@@ -134,9 +151,13 @@ const About = () => {
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="body2"
               paragraph
-              sx={{ color: "black", fontFamily: "Arial, sans-serif" }}
+              sx={{
+                color: "black",
+                fontFamily: "Arial, sans-serif",
+                fontStyle: "italic",
+              }}
             >
               Finally, we merge the four ranked lists using a reciprocal rank
               fusion (RRF) method to get the final ranked lists. We then show
@@ -145,9 +166,13 @@ const About = () => {
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="body2"
               paragraph
-              sx={{ color: "black", fontFamily: "Arial, sans-serif" }}
+              sx={{
+                color: "black",
+                fontFamily: "Arial, sans-serif",
+                fontStyle: "italic",
+              }}
             >
               Text Queries containing Indian languages: Before sending the query
               to the ranking algorithms, we check if more than 40% tokens in the
@@ -160,9 +185,13 @@ const About = () => {
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="body2"
               paragraph
-              sx={{ color: "black", fontFamily: "Arial, sans-serif" }}
+              sx={{
+                color: "black",
+                fontFamily: "Arial, sans-serif",
+                fontStyle: "italic",
+              }}
             >
               Image Query: Given an image as the query, we use ResNet-50, an
               open-source vision-transformer model, to get a dense embedding
@@ -173,15 +202,20 @@ const About = () => {
             </Typography>
 
             {/* <Divider sx={{ my: 3 }} /> */}
-<Typography
-  variant="h5"
-  gutterBottom
-  sx={{ color: "blue", fontWeight: "bold" }}
->
-  <a href="https://www.vishvasnews.com/about-us/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
-    About Vishvas News
-  </a>
-</Typography>
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{ color: "blue", fontWeight: "bold" }}
+            >
+              <a
+                href="https://www.vishvasnews.com/about-us/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
+                About Vishvas News
+              </a>
+            </Typography>
 
             <Typography
               variant="body1"
