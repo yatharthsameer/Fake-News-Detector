@@ -35,12 +35,14 @@ import LineChart from "../../components/LineChart";
 import ProgressCircle from "../../components/ProgressCircle";
 import { tokens } from "../../theme";
 
+
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isXs = useMediaQuery(theme.breakpoints.down("xs"));
   const isSm = useMediaQuery(theme.breakpoints.down("sm"));
   const isMd = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Detect mobile mode
 
   const [results, setResults] = useState([]);
   const [chartData, setChartData] = useState([]);
@@ -120,7 +122,7 @@ const Dashboard = () => {
     if (searchType === "text") {
       const searchQuery = searchInputRef.current.value;
       fetch("/api/ensemble", {
-      // fetch("https://factcheckerbtp.vishvasnews.com/api/ensemble", {
+        // fetch("https://factcheckerbtp.vishvasnews.com/api/ensemble", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -246,7 +248,7 @@ const Dashboard = () => {
   const highestMatch = results.length > 0 ? results[0].percentage : 0;
 
   return (
-    <Box m="20px">
+    <Box mt="40px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
           title="MESSAGE CHECK "
@@ -582,7 +584,7 @@ const Dashboard = () => {
                         <Grid item xs={12}>
                           <Box
                             backgroundColor={colors.primary[400]}
-                            p="30px"
+                            // p="30px"
                             height="100%"
                             overflow="auto"
                           >
@@ -663,7 +665,7 @@ const Dashboard = () => {
                                           : ""
                                       }
                                       alt="News"
-                                      width="110px"
+                                      width={isMobile ? "140px" : "150px"} // Conditional width
                                       height="95px"
                                       style={{ marginRight: "20px" }}
                                     />
@@ -886,7 +888,7 @@ const Dashboard = () => {
                                           : ""
                                       }
                                       alt="News"
-                                      width="110px"
+                                      width={isMobile ? "250px" : "150px"} // Conditional width
                                       height="95px"
                                       style={{ marginRight: "20px" }}
                                     />

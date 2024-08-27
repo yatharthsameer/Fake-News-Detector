@@ -76,7 +76,7 @@ const Sidebar = () => {
   const drawerContent = (
     <Box
       sx={{
-        width: 300,
+        width: isMobile ? "50vw" : 300, // Set the width based on screen size
         backgroundColor: "#26a450",
         height: "100%",
         display: "flex",
@@ -137,17 +137,30 @@ const Sidebar = () => {
     <Box>
       {isMobile ? (
         <>
-          <IconButton
-            onClick={toggleDrawer}
+          <Box
             sx={{
-              color: colors.grey[100],
+              display: "flex",
+              alignItems: "center",
               position: "absolute",
               top: 10,
               left: 10,
             }}
           >
-            <MenuOutlinedIcon />
-          </IconButton>
+            <IconButton onClick={toggleDrawer} sx={{ color: colors.grey[100] }}>
+              <MenuOutlinedIcon />
+            </IconButton>
+            <img
+              alt="company-logo"
+              src={`../../VNlogoWhite.png`}
+              style={{
+                marginLeft: 10, // Adjust spacing between icon and logo
+                width: 140, // Adjust the size of the logo as needed
+                height: 50,
+                cursor: "pointer",
+              }}
+              onClick={() => navigate("/")}
+            />
+          </Box>
           <Drawer
             open={isOpen}
             onClose={toggleDrawer}
