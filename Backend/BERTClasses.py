@@ -16,6 +16,7 @@ import string
 from collections import defaultdict
 import spacy
 import numpy as np
+
 # from multiprocessing import Pool, Process
 from datetime import datetime
 
@@ -46,19 +47,32 @@ def load_data(filepath="csvProcessing/allData.json"):
             val["Story_URL"] = re.sub(
                 "\W+", " ", val["Story_URL"][val["Story_URL"].rfind("/", 0, -2) + 1 :]
             ).strip()
+
             for x in val:
-                val[x] = (
-                    re.sub("\s+", " ", val[x].lower()).strip()
-                    if val[x] and val[x].lower() not in ["na", "n/a"]
-                    else ""
-                )
-                val[x] = (
-                    re.sub("(quick.)?fact.check\s?\:?\s*", "", val[x])
-                    if val[x].startswith("fact check")
-                    or val[x].startswith("fact-check")
-                    or val[x].startswith("quick fact check")
-                    else val[x]
-                )
+                # Check if the value is a list
+                if isinstance(val[x], list):
+                    # Process each item in the list
+                    val[x] = [
+                        (
+                            re.sub("\s+", " ", item.lower()).strip()
+                            if item and item.lower() not in ["na", "n/a"]
+                            else ""
+                        )
+                        for item in val[x]
+                    ]
+                else:
+                    val[x] = (
+                        re.sub("\s+", " ", val[x].lower()).strip()
+                        if val[x] and val[x].lower() not in ["na", "n/a"]
+                        else ""
+                    )
+                    val[x] = (
+                        re.sub("(quick.)?fact.check\s?\:?\s*", "", val[x])
+                        if val[x].startswith("fact check")
+                        or val[x].startswith("fact-check")
+                        or val[x].startswith("quick fact check")
+                        else val[x]
+                    )
 
             tmp = [
                 val[x].strip(": ")
@@ -98,7 +112,7 @@ def doc_tokenize_sets(doc):
 ################################################################################
 ################################################################################
 class bm25:
-    def __init__(self, docs, orig_docs = None, use_lemma=True):
+    def __init__(self, docs, orig_docs=None, use_lemma=True):
         self.use_lemma = use_lemma
         ts = time()
         self.nlp = spacy.load("en_core_web_sm")
@@ -109,7 +123,9 @@ class bm25:
         if orig_docs is not None:
             self.title_set = [doc_tokenize_sets(self.clean(x['Headline'])) for x in self.orig_docs]
 
-        assert not use_lemma or orig_docs, "Require original docs for doc ID checking during lemma"
+        assert (
+            not use_lemma or orig_docs
+        ), "Require original docs for doc ID checking during lemma"
         assert len(docs) == len(orig_docs)
 
         tokenized_corpus = self.tokenize_all(docs, orig_docs)
@@ -136,10 +152,8 @@ class bm25:
 
         self.scorer = BM25Plus(tokenized_corpus)
 
-
     def clean(self, text: str):
         return text.lower()
-
 
     def tokenize_all(self, docs, orig_docs):
         if self.use_lemma:
@@ -157,22 +171,26 @@ class bm25:
             tokenized_corpus = []
             updateFile = False
             for d, od in zip(docs, orig_docs):
-                if od['key'] in lemma_data:
-                    tokenized_corpus.append(lemma_data[od['key']])
+                if od["key"] in lemma_data:
+                    tokenized_corpus.append(lemma_data[od["key"]])
                 else:
                     tokenized_corpus.append(self.tokenize(d))
                     updateFile = True
 
             if updateFile:
                 print("UPDATING LEMMA FILE")
-                with open("csvProcessing/lemmaData.json", 'w') as fw:
-                    json.dump({od['key'] : le for le, od in zip(tokenized_corpus, orig_docs)}, fw, indent=4, ensure_ascii=False)
+                with open("csvProcessing/lemmaData.json", "w") as fw:
+                    json.dump(
+                        {od["key"]: le for le, od in zip(tokenized_corpus, orig_docs)},
+                        fw,
+                        indent=4,
+                        ensure_ascii=False,
+                    )
 
         else:
             tokenized_corpus = map(self.tokenize, docs)
 
         return tokenized_corpus
-
 
     def tokenize(self, text: str):
         if self.use_lemma:
@@ -438,7 +456,7 @@ class ensemble:
 
 
 
-    def add_docs(self, docs, orig_docs = None):
+    def add_docs(self, docs, orig_docs=None):
         self.docs.extend(docs)
 
         if self.orig_docs:
@@ -531,7 +549,8 @@ class ensemble:
                 indices |= set(bm25idx2)
                 results.append(bm25idx2)
 
-            indices |= set(bm25idx)
+            # NEW CHANGE: CLIPPING INPUT INDICES FOR BS
+            indices |= set(bm25idx[:15])
             results.append(bm25idx)
 
         if self.use_ft:
@@ -542,7 +561,8 @@ class ensemble:
                 indices |= set(ftidx2)
                 results.append(ftidx2)
 
-            indices |= set(ftidx)
+            # NEW CHANGE: CLIPPING INPUT INDICES FOR BS
+            indices |= set(ftidx[:15])
             results.append(ftidx)
 
         if not indices:

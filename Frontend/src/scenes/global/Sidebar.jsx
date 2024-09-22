@@ -2,20 +2,16 @@ import React, { useState, useContext } from "react";
 import {
   Box,
   IconButton,
-  Typography,
+  Divider,
   useTheme,
-  Switch,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   useMediaQuery,
   Drawer,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
@@ -69,14 +65,7 @@ const Sidebar = () => {
       title: "Trends",
       to: "/trendspage",
       icon: <CalendarTodayOutlinedIcon sx={{ color: "white" }} />,
-    }
-    ,
-    // {
-    //   title: "Add fact-check(s)",
-    //   to: "/form",
-    //   icon: <ReceiptOutlinedIcon sx={{ color: "white" }} />,
-    // },
-    // add menu item for About page
+    },
     {
       title: "About",
       to: "/about",
@@ -87,7 +76,7 @@ const Sidebar = () => {
   const drawerContent = (
     <Box
       sx={{
-        width: 300,
+        width: isMobile ? "50vw" : 300, // Set the width based on screen size
         backgroundColor: "#26a450",
         height: "100%",
         display: "flex",
@@ -111,6 +100,7 @@ const Sidebar = () => {
               width: "100%",
               cursor: "pointer",
             }}
+            onClick={() => navigate("/")}
           />
         </Box>
         <Divider />
@@ -140,7 +130,6 @@ const Sidebar = () => {
           ))}
         </List>
       </Box>
-      
     </Box>
   );
 
@@ -148,17 +137,30 @@ const Sidebar = () => {
     <Box>
       {isMobile ? (
         <>
-          <IconButton
-            onClick={toggleDrawer}
+          <Box
             sx={{
-              color: colors.grey[100],
+              display: "flex",
+              alignItems: "center",
               position: "absolute",
               top: 10,
               left: 10,
             }}
           >
-            <MenuOutlinedIcon />
-          </IconButton>
+            <IconButton onClick={toggleDrawer} sx={{ color: colors.grey[100] }}>
+              <MenuOutlinedIcon />
+            </IconButton>
+            <img
+              alt="company-logo"
+              src={`../../VNlogoWhite.png`}
+              style={{
+                marginLeft: 10, // Adjust spacing between icon and logo
+                width: 140, // Adjust the size of the logo as needed
+                height: 50,
+                cursor: "pointer",
+              }}
+              onClick={() => navigate("/")}
+            />
+          </Box>
           <Drawer
             open={isOpen}
             onClose={toggleDrawer}
