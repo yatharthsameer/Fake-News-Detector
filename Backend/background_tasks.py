@@ -30,7 +30,12 @@ def fetch_and_store_top_trends():
         combined_results = []
         for query in combined_trends:
             # Call the rank_documents_bm25_bert function for each query
-            req = {"query": f'"{query}"'}            
+            if not (query.startswith('"') and query.endswith('"')):
+                query = f'"{query}"'
+    
+    # Create the request with the query wrapped in double quotes
+            req = {"query": query}
+           
             with app.test_request_context(json=req):
                 from app import (
                     rank_documents_bm25_bert,

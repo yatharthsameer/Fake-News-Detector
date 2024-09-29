@@ -636,6 +636,8 @@ def rank_documents_bm25_bert():
 def rank_documents_bm25_bert_trends():
     req = request.json
     query = req.get("query", "")
+    log_query("text", query)
+
     data = []
     with open("csvProcessing/allData.json", "r", encoding="utf-8") as file:
         data = json.load(file)
