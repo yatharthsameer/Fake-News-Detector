@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 from google_trends import daily_trends, realtime_trends
 from flask import Flask
+import spacy
 
 app = Flask(__name__)
 
@@ -14,6 +15,13 @@ app = Flask(__name__)
 # OR
 # set model.use_date_level = 1 before calling the api, and set it to 2 again once done
 
+NLP = spacy.load("en_core_web_sm")
+
+def extract_entities(text):
+    doc = NLP(text)
+    if doc.ents:
+        return max(doc.ents, key=len)
+    return text
 
 def fetch_and_store_top_trends():
     try:
@@ -27,13 +35,19 @@ def fetch_and_store_top_trends():
         # Combine today's and yesterday's trends and take the union
         combined_trends = set(today_trends + yesterday_trends)
         print(combined_trends)
+
         combined_results = []
         for query in combined_trends:
             # Call the rank_documents_bm25_bert function for each query
+
+            query = extract_entities(query)
+
             if not (query.startswith('"') and query.endswith('"')):
                 query = f'"{query}"'
+
+            print(query)
     
-    # Create the request with the query wrapped in double quotes
+            # Create the request with the query wrapped in double quotes
             req = {"query": query}
            
             with app.test_request_context(json=req):
