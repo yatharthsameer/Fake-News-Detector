@@ -21,6 +21,11 @@ def extract_entities(text):
     doc = NLP(text)
     if doc.ents:
         return max(doc.ents, key=len)
+
+    NNPs = [tok for tok in doc if tok.tag_ == "NNP"]
+    if NNPs:
+        return max(NNPs, key=len)
+
     return text
 
 def fetch_and_store_top_trends():
