@@ -31,15 +31,18 @@ def extract_entities(text):
         return max(doc.ents, key=len)
 
 
-    NNPs = [tok for tok in doc if tok.tag_ == "NNP"]
-    if NNPs:
-        return max(NNPs, key=len)
+    # NNPs = [tok for tok in doc if tok.tag_ == "NNP"]
+    # if NNPs:
+    #     return max(NNPs, key=len)
 
-    NNs = [tok for tok in doc if tok.tag_ == "NN"]
-    if NNs:
-        return max(NNs, key=len)
+    # NNs = [tok for tok in doc if tok.tag_ == "NN"]
+    # if NNs:
+    #     return max(NNs, key=len)
 
     return text
+
+
+
 
 def fetch_and_store_top_trends():
     try:
@@ -59,6 +62,7 @@ def fetch_and_store_top_trends():
             # Call the rank_documents_bm25_bert function for each query
 
             query = extract_entities(query)
+            # print(query, ": ", query1)
 
             if not (query.startswith('"') and query.endswith('"')):
                 query = f'"{query}"'
@@ -108,3 +112,6 @@ def fetch_and_store_top_trends():
         print("Top trends stored successfully!")
     except Exception as e:
         print(f"Error fetching trends: {str(e)}")
+
+
+# fetch_and_store_top_trends()
