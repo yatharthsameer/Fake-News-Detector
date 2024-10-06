@@ -20,11 +20,11 @@ NLP = spacy.load("en_core_web_sm")
 def extract_entities1(text):
     doc = NLP(text)
     if doc.ents:
-        PERs = [tok for tok in doc.ents if tok.label_ == "PERSON"]
+        PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
         if PERs:
             return max(PERs, key=len)
         
-        ORGs = [tok for tok in doc.ents if tok.label_ == "ORG"]
+        ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
         if ORGs:
             return max(ORGs, key=len)
 
@@ -44,10 +44,10 @@ def extract_entities1(text):
 
 def extract_entities2(text):
     doc = NLP(text)
-    if " ".join(doc.ents) == text:
+    if " ".join(map(str, doc.ents)) == text:
         return text
 
-    NNPs = [tok for tok in doc if tok.tag_ == "NNP"]
+    NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
     if " ".join(NNPs) == text:
         return text
 
