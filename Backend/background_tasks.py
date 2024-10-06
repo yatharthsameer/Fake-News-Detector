@@ -28,12 +28,25 @@ def extract_entities1(text):
         if ORGs:
             return max(ORGs, key=len)
 
-        # return max(doc.ents, key=len)
+    return ""
+
+def extract_entities3(text):
+    doc = NLP(text)
+    if doc.ents:
+        PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
+        if PERs:
+            return max(PERs, key=len)
+        
+        ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
+        if ORGs:
+            return max(ORGs, key=len)
+
+        return max(map(str, doc.ents), key=len)
 
 
-    # NNPs = [tok for tok in doc if tok.tag_ == "NNP"]
-    # if NNPs:
-    #     return max(NNPs, key=len)
+    NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
+    if NNPs:
+        return max(NNPs, key=len)
 
     # NNs = [tok for tok in doc if tok.tag_ == "NN"]
     # if NNs:
@@ -71,8 +84,8 @@ def fetch_and_store_top_trends():
         for query in combined_trends:
             # Call the rank_documents_bm25_bert function for each query
 
-            # query = extract_entities1(query)
-            query = extract_entities2(query)
+            query = extract_entities3(query)
+            # query = extract_entities2(query)
 
             if not query:
                 continue
