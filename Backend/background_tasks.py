@@ -125,3 +125,6 @@ def fetch_and_store_top_trends():
         print("Top trends stored successfully!")
     except Exception as e:
         print(f"Error fetching trends: {str(e)}")
+
+
+# fetch_and_store_top_trends()
