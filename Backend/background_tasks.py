@@ -17,57 +17,94 @@ app = Flask(__name__)
 
 NLP = spacy.load("en_core_web_sm")
 
-def extract_entities1(text):
-    doc = NLP(text)
-    if doc.ents:
-        PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
-        if PERs:
-            return max(PERs, key=len)
+def extract_entity_groups(queries):
+    groups = [[] for i in range(6)]
+
+    for text in queries:
+        doc = NLP(text)
+
+        # GROUP 1
+        if " ".join(map(str, doc.ents)) == text:
+            groups[0].append(text)
+            # continue
+
+        # GROUP 2
+        NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
+        if " ".join(NNPs) == text:
+            groups[1].append(text)
+            # continue
+
+
+        # GROUP 3
+        if doc.ents:
+            groups[2].append(" ".join(map(str, doc.ents)))
         
-        ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
-        if ORGs:
-            return max(ORGs, key=len)
 
-    return ""
+            # GROUP 4
+            PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
+            if PERs:
+                groups[3].append(max(PERs, key=len))
+                # continue
+            
+            ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
+            if ORGs:
+                groups[3].append(max(ORGs, key=len))
+                # continue
+            
 
-def extract_entities3(text):
-    doc = NLP(text)
-    if doc.ents:
-        PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
-        if PERs:
-            return max(PERs, key=len)
+        # GROUP 5
+        NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
+        if NNPs:
+            groups[4].append(" ".join(NNPs))
+
+        # GROUP 6
+        NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
+        if NNPs:
+            groups[5].append(max(NNPs, key=len))
+
+
+    return groups
+
+# def extract_entities3(text):
+#     doc = NLP(text)
+#     if doc.ents:
+#         PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
+#         if PERs:
+#             return max(PERs, key=len)
         
-        ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
-        if ORGs:
-            return max(ORGs, key=len)
+#         ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
+#         if ORGs:
+#             return max(ORGs, key=len)
 
-        return max(map(str, doc.ents), key=len)
-
-
-    NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
-    if NNPs:
-        return max(NNPs, key=len)
-
-    # NNs = [tok for tok in doc if tok.tag_ == "NN"]
-    # if NNs:
-    #     return max(NNs, key=len)
-
-    return ""
+#         return max(map(str, doc.ents), key=len)
 
 
-def extract_entities2(text):
-    doc = NLP(text)
-    if " ".join(map(str, doc.ents)) == text:
-        return text
+#     NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
+#     if NNPs:
+#         return max(NNPs, key=len)
 
-    NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
-    if " ".join(NNPs) == text:
-        return text
+#     # NNs = [tok for tok in doc if tok.tag_ == "NN"]
+#     # if NNs:
+#     #     return max(NNs, key=len)
 
-    return ""
+#     return ""
+
+
+# def extract_entities2(text):
+#     doc = NLP(text)
+    # if " ".join(map(str, doc.ents)) == text:
+    #     return text
+
+    # NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
+    # if " ".join(NNPs) == text:
+    #     return text
+
+    # return ""
 
 
 def fetch_and_store_top_trends():
+    NUM_TRENDS = 6
+
     try:
         print("Fetching and storing top trends...")
         # Fetch daily trends for today and yesterday
@@ -80,56 +117,78 @@ def fetch_and_store_top_trends():
         combined_trends = set(today_trends + yesterday_trends)
         print(combined_trends)
 
+        extracted_groups = extract_entity_groups(combined_trends)
+
+        for group in extracted_groups:
+            print(group)
+
         combined_results = []
-        for query in combined_trends:
-            # Call the rank_documents_bm25_bert function for each query
+        poswordset = set()
 
-            query = extract_entities3(query)
-            # query = extract_entities2(query)
+        for group in extracted_groups:
+            group_results = []
+            for query in group:
+                # Call the rank_documents_bm25_bert function for each query
+                if not query:
+                    continue
 
-            if not query:
-                continue
+                # if all words already covered in some previous search with results
+                for word in query.split():
+                    if word not in poswordset:
+                        break
+                else:
+                    print("Skipping:", query)
+                    continue
 
-            if not (query.startswith('"') and query.endswith('"')):
-                query = f'"{query}"'
 
-            print(query)
-    
-            # Create the request with the query wrapped in double quotes
-            req = {"query": query}
-           
-            with app.test_request_context(json=req):
-                from app import (
-                    rank_documents_bm25_bert,
-                    rank_documents_bm25_bert_trends,
-                )  # Import here to avoid circular import
 
-                response = rank_documents_bm25_bert_trends()
-                if response.status_code == 200:
-                    result_data = response.json
-                    if result_data:
-                        top_story_percentage = (
-                            result_data[0]["percentage"] if result_data else 0
-                        )
-                        combined_results.append(
-                            {
-                                "query": query,
-                                "top_story_percentage": top_story_percentage,
-                                "result_data": result_data,
-                            }
-                        )
+                if not (query.startswith('"') and query.endswith('"')):
+                    query = f'"{query}"'
 
-        # Sort combined results based on top story percentage
-        sorted_results = sorted(
-            combined_results, key=lambda x: x["top_story_percentage"], reverse=True
-        )
+                print(query)
+        
+                # Create the request with the query wrapped in double quotes
+                req = {"query": query}
+            
+                with app.test_request_context(json=req):
+                    from app import (
+                        rank_documents_bm25_bert,
+                        rank_documents_bm25_bert_trends,
+                    )  # Import here to avoid circular import
 
-        # Get the top 5 queries with the highest match percentages
-        top_5_results = sorted_results[:5]
+                    response = rank_documents_bm25_bert_trends()
+                    if response.status_code == 200:
+                        result_data = response.json
+                        if result_data:
+                            top_story_percentage = (
+                                result_data[0]["percentage"] if result_data else 0
+                            )
+                            group_results.append(
+                                {
+                                    "query": query,
+                                    "top_story_percentage": top_story_percentage,
+                                    "result_data": result_data,
+                                }
+                            )    
+                            poswordset.update(query.split())
+
+            # Sort combined results based on top story percentage
+            sorted_results = sorted(
+                group_results, key=lambda x: x["top_story_percentage"], reverse=True
+            )
+
+            combined_results.extend(sorted_results)
+            if len(combined_results) >= NUM_TRENDS:
+                break
+
+            
+
+        # Get the top k queries with the highest match percentages
+        top_k_results = sorted_results[:NUM_TRENDS]
 
         # Prepare the response in the required format
         response_data = [
-            {result["query"]: result["result_data"][:1]} for result in top_5_results
+            {result["query"]: result["result_data"][:1]} for result in top_k_results
         ]
 
         # Store the response data in a file
