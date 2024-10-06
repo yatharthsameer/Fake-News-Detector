@@ -71,8 +71,8 @@ def fetch_and_store_top_trends():
         for query in combined_trends:
             # Call the rank_documents_bm25_bert function for each query
 
-            query = extract_entities1(query)
-            # query = extract_entities2(query)
+            # query = extract_entities1(query)
+            query = extract_entities2(query)
 
             if not query:
                 continue
