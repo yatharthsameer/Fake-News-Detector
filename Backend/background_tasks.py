@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 NLP = spacy.load("en_core_web_sm")
 
-def extract_entities(text):
+def extract_entities1(text):
     doc = NLP(text)
     if doc.ents:
         PERs = [tok for tok in doc.ents if tok.label_ == "PERSON"]
@@ -28,18 +28,31 @@ def extract_entities(text):
         if ORGs:
             return max(ORGs, key=len)
 
-        return max(doc.ents, key=len)
+        # return max(doc.ents, key=len)
 
+
+    # NNPs = [tok for tok in doc if tok.tag_ == "NNP"]
+    # if NNPs:
+    #     return max(NNPs, key=len)
+
+    # NNs = [tok for tok in doc if tok.tag_ == "NN"]
+    # if NNs:
+    #     return max(NNs, key=len)
+
+    return ""
+
+
+def extract_entities2(text):
+    doc = NLP(text)
+    if " ".join(doc.ents) == text:
+        return text
 
     NNPs = [tok for tok in doc if tok.tag_ == "NNP"]
-    if NNPs:
-        return max(NNPs, key=len)
+    if " ".join(NNPs) == text:
+        return text
 
-    NNs = [tok for tok in doc if tok.tag_ == "NN"]
-    if NNs:
-        return max(NNs, key=len)
+    return ""
 
-    return text
 
 def fetch_and_store_top_trends():
     try:
@@ -58,7 +71,11 @@ def fetch_and_store_top_trends():
         for query in combined_trends:
             # Call the rank_documents_bm25_bert function for each query
 
-            query = extract_entities(query)
+            query = extract_entities1(query)
+            # query = extract_entities2(query)
+
+            if not query:
+                continue
 
             if not (query.startswith('"') and query.endswith('"')):
                 query = f'"{query}"'
