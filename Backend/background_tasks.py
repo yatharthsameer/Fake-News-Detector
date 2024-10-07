@@ -132,16 +132,22 @@ def fetch_and_store_top_trends():
         poswordset = set()
 
         for group in extracted_groups:
-            print("#"*100)
-            print("#"*100)
             group_results = []
+
+            print("\n\n")
+            print("#"*100)
+            print("#"*100)
+            print(group)
+                
             for query in group:
+                print("\n")
+                print("#"*100)
                 # Call the rank_documents_bm25_bert function for each query
                 if not query:
                     continue
 
                 # if all words already covered in some previous search with results
-                for word in query.split():
+                for word in query.lower().split():
                     if word not in poswordset:
                         break
                 else:
@@ -179,7 +185,7 @@ def fetch_and_store_top_trends():
                                         "result_data": result_data,
                                     }
                                 )    
-                                poswordset.update(query.split())
+                                poswordset.update(query[1:-1].lower().split())
 
 
                 else:
@@ -197,7 +203,7 @@ def fetch_and_store_top_trends():
                                 "result_data": [origdata[x]["Headline"] for x in idx]
                             }
                         )    
-                        poswordset.update(query.split())
+                        poswordset.update(query[1:-1].lower().split())
                         print(poswordset)
 
 
