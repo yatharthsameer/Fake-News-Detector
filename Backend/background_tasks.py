@@ -4,6 +4,11 @@ from datetime import datetime, timedelta
 from google_trends import daily_trends, realtime_trends
 import spacy
 
+
+NUM_TRENDS = 6
+
+
+
 TEST_LOCAL = __name__ == '__main__'
 
 if not TEST_LOCAL:
@@ -13,7 +18,7 @@ if not TEST_LOCAL:
 else:
     from BERTClasses import load_data, ensemble
     docs, origdata = load_data("csvProcessing/allData.json")
-    model = ensemble(docs, use_translation=True, origdocs=orig, use_date_level= 1)
+    model = ensemble(docs, use_translation=True, orig_docs=origdata, use_date_level= 1)
 
 
 #############################################################
@@ -105,7 +110,6 @@ def extract_entity_groups(queries):
 
 
 def fetch_and_store_top_trends():
-    NUM_TRENDS = 6
 
     try:
         print("Fetching and storing top trends...")
@@ -128,6 +132,8 @@ def fetch_and_store_top_trends():
         poswordset = set()
 
         for group in extracted_groups:
+            print("#"*100)
+            print("#"*100)
             group_results = []
             for query in group:
                 # Call the rank_documents_bm25_bert function for each query
@@ -183,15 +189,16 @@ def fetch_and_store_top_trends():
                         if len(idx) > 0
                         else None
                     )
-                    if idx:
+                    if len(idx) > 0:
                         group_results.append(
                             {
                                 "query": query,
                                 "top_story_percentage": percent,
-                                "result_data": [origdata[x] for x in idx]
+                                "result_data": [origdata[x]["Headline"] for x in idx]
                             }
                         )    
                         poswordset.update(query.split())
+                        print(poswordset)
 
 
 
@@ -213,6 +220,8 @@ def fetch_and_store_top_trends():
         response_data = [
             {result["query"]: result["result_data"][:1]} for result in top_k_results
         ]
+
+        # print(response_data)
 
         # Store the response data in a file
         with open("top_trends_cache.json", "w", encoding="utf-8") as cache_file:
