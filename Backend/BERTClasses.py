@@ -631,7 +631,7 @@ if __name__ == "__main__":
 
 
     docs, orig = load_data("csvProcessing/allData.json")
-    model = ensemble(docs, use_translation=True, orig_docs=orig, use_date_level=2)
+    model = ensemble(docs, use_translation=True, orig_docs=orig, use_date_level=1)
 
     for query in QUERY:
         query = '"' + query + '"'

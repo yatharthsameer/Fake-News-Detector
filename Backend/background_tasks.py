@@ -2,18 +2,22 @@ import json
 import os
 from datetime import datetime, timedelta
 from google_trends import daily_trends, realtime_trends
-from flask import Flask
 import spacy
 
-app = Flask(__name__)
+TEST_LOCAL = __name__ == '__main__'
+
+if not TEST_LOCAL:
+    from flask import Flask
+    app = Flask(__name__)
+
+else:
+    from BERTClasses import load_data, ensemble
+    docs, origdata = load_data("csvProcessing/allData.json")
+    model = ensemble(docs, use_translation=True, origdocs=orig, use_date_level= 1)
 
 
-# docs, orig = load_data("csvProcessing/allData.json")
-# model = ensemble(docs,use_translation=True, origdocs=orig, use_date_level= 0 or 1)
-# OR
-# model = ensemble(docs,use_translation=True, origdocs=orig)
-# OR
-# set model.use_date_level = 1 before calling the api, and set it to 2 again once done
+#############################################################
+#############################################################
 
 NLP = spacy.load("en_core_web_sm")
 
@@ -58,8 +62,6 @@ def extract_entity_groups(queries):
             groups[4].append(" ".join(NNPs))
 
         # GROUP 6
-        NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
-        if NNPs:
             groups[5].append(max(NNPs, key=len))
 
 
@@ -147,30 +149,51 @@ def fetch_and_store_top_trends():
 
                 print(query)
         
-                # Create the request with the query wrapped in double quotes
-                req = {"query": query}
-            
-                with app.test_request_context(json=req):
-                    from app import (
-                        rank_documents_bm25_bert,
-                        rank_documents_bm25_bert_trends,
-                    )  # Import here to avoid circular import
+                if not TEST_LOCAL:
+                    # Create the request with the query wrapped in double quotes
+                    req = {"query": query}
+                
+                    with app.test_request_context(json=req):
+                        from app import (
+                            rank_documents_bm25_bert,
+                            rank_documents_bm25_bert_trends,
+                        )  # Import here to avoid circular import
 
-                    response = rank_documents_bm25_bert_trends()
-                    if response.status_code == 200:
-                        result_data = response.json
-                        if result_data:
-                            top_story_percentage = (
-                                result_data[0]["percentage"] if result_data else 0
-                            )
-                            group_results.append(
-                                {
-                                    "query": query,
-                                    "top_story_percentage": top_story_percentage,
-                                    "result_data": result_data,
-                                }
-                            )    
-                            poswordset.update(query.split())
+                        response = rank_documents_bm25_bert_trends()
+                        if response.status_code == 200:
+                            result_data = response.json
+                            if result_data:
+                                top_story_percentage = (
+                                    result_data[0]["percentage"] if result_data else 0
+                                )
+                                group_results.append(
+                                    {
+                                        "query": query,
+                                        "top_story_percentage": top_story_percentage,
+                                        "result_data": result_data,
+                                    }
+                                )    
+                                poswordset.update(query.split())
+
+
+                else:
+                    idx, scores = model.rank(query)
+                    percent = (
+                        max(list(scores[:3]) + [model.match_percent(query, origdata[idx[0]])])
+                        if len(idx) > 0
+                        else None
+                    )
+                    if idx:
+                        group_results.append(
+                            {
+                                "query": query,
+                                "top_story_percentage": percent,
+                                "result_data": [origdata[x] for x in idx]
+                            }
+                        )    
+                        poswordset.update(query.split())
+
+
 
             # Sort combined results based on top story percentage
             sorted_results = sorted(
@@ -199,4 +222,8 @@ def fetch_and_store_top_trends():
         print(f"Error fetching trends: {str(e)}")
 
 
-# fetch_and_store_top_trends()
+
+
+
+if TEST_LOCAL:
+    fetch_and_store_top_trends()
