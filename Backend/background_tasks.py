@@ -29,84 +29,72 @@ NLP = spacy.load("en_core_web_sm")
 def extract_entity_groups(queries):
     groups = [[] for i in range(6)]
 
+    allqueryset = set()
+
     for text in queries:
         doc = NLP(text)
 
         # GROUP 1
         if " ".join(map(str, doc.ents)) == text:
-            groups[0].append(text)
+            if text.lower() not in allqueryset:
+                groups[0].append(text)
+                allqueryset.add(text.lower())
             # continue
 
         # GROUP 2
         NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
         if " ".join(NNPs) == text:
-            groups[1].append(text)
+            if text.lower() not in allqueryset:
+                groups[1].append(text)
+                allqueryset.add(text.lower())
             # continue
 
 
         # GROUP 3
         if doc.ents:
-            groups[2].append(" ".join(map(str, doc.ents)))
+            tmp = " ".join(map(str, doc.ents))
+            if tmp.lower() not in allqueryset:
+                groups[2].append(tmp)
+                allqueryset.add(tmp.lower())
         
 
             # GROUP 4
             PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
             if PERs:
-                groups[3].append(max(PERs, key=len))
+                tmp = max(PERs, key=len)
+                if tmp.lower() not in allqueryset:
+                    groups[3].append(tmp)
+                    allqueryset.add(tmp.lower())
                 # continue
             
             ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
             if ORGs:
-                groups[3].append(max(ORGs, key=len))
+                tmp = max(ORGs, key=len)
+                if tmp.lower() not in allqueryset:
+                    groups[3].append(tmp)
+                    allqueryset.add(tmp.lower())
                 # continue
             
 
         # GROUP 5
         NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
         if NNPs:
-            groups[4].append(" ".join(NNPs))
+            tmp = " ".join(NNPs)
+            if tmp.lower() not in allqueryset:
+                groups[4].append(tmp)
+                allqueryset.add(tmp.lower())
 
         # GROUP 6
-            groups[5].append(max(NNPs, key=len))
+            tmp = max(NNPs, key=len)
+            if tmp.lower() not in allqueryset:
+                groups[5].append(tmp)
+                allqueryset.add(tmp.lower())
 
 
     return groups
 
-# def extract_entities3(text):
-#     doc = NLP(text)
-#     if doc.ents:
-#         PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
-#         if PERs:
-#             return max(PERs, key=len)
-        
-#         ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
-#         if ORGs:
-#             return max(ORGs, key=len)
-
-#         return max(map(str, doc.ents), key=len)
 
 
-#     NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
-#     if NNPs:
-#         return max(NNPs, key=len)
-
-#     # NNs = [tok for tok in doc if tok.tag_ == "NN"]
-#     # if NNs:
-#     #     return max(NNs, key=len)
-
-#     return ""
-
-
-# def extract_entities2(text):
-#     doc = NLP(text)
-    # if " ".join(map(str, doc.ents)) == text:
-    #     return text
-
-    # NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
-    # if " ".join(NNPs) == text:
-    #     return text
-
-    # return ""
 
 
 def fetch_and_store_top_trends():
@@ -210,8 +198,12 @@ def fetch_and_store_top_trends():
 
             # Sort combined results based on top story percentage
             sorted_results = sorted(
-                group_results, key=lambda x: x["top_story_percentage"], reverse=True
+                group_results, 
+                # key=lambda x: x["top_story_percentage"], 
+                key=lambda x: len(x["query"]), 
+                reverse=True
             )
+            
 
             combined_results.extend(sorted_results)
             if len(combined_results) >= NUM_TRENDS:
@@ -220,7 +212,7 @@ def fetch_and_store_top_trends():
             
 
         # Get the top k queries with the highest match percentages
-        top_k_results = sorted_results[:NUM_TRENDS]
+        top_k_results = combined_results[:NUM_TRENDS]
 
         # Prepare the response in the required format
         response_data = [
