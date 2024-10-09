@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
+import { useTranslation } from "react-i18next"; // Translation hook
 
 const Trendspage = () => {
   const [resultsColumn1, setResultsColumn1] = useState([]);
@@ -24,6 +25,7 @@ const Trendspage = () => {
   const [errorColumn2, setErrorColumn2] = useState(null);
   const [showAllResultsColumn1, setShowAllResultsColumn1] = useState(false);
   const itemsPerPageColumn2 = 7;
+  const { t } = useTranslation(); // Translation hook
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -65,7 +67,7 @@ const Trendspage = () => {
   const fetchTopTrends = () => {
     setIsLoadingColumn1(true);
     // fetch("https://factcheckerbtp.vishvasnews.com/api/top-trends")
-    fetch("/api/top-trends")
+      fetch("/api/top-trends")
       .then((response) => response.json())
       .then((data) => {
         const flattenedData = [];
@@ -290,14 +292,10 @@ const Trendspage = () => {
           title="Trends based misinformation"
           subtitle={
             <>
-              Recycled dis/misinformation is often deployed by bad actors to
-              create confusion and mislead recipients.
-              <br /> This section shows you already debunked dis/misinformation
-              based on:
-              <br /> <b>Current trends </b>– Fact-checks by our team based on
-              what is trending on the web.
-              <br /> <b>Historical trends</b> – Fact-checks from the past years,
-              on the same date and week +/- three days.
+              {t("recycled_misinformation")} {/* Recycled misinformation */}
+              <br /> {t("debunked_section")} {/* This section shows... */}
+              <br /> <b>{t("current_trends")}</b> {/* Current trends */}
+              <br /> <b>{t("historical_trends")}</b> {/* Historical trends */}
             </>
           }
         />
@@ -311,7 +309,7 @@ const Trendspage = () => {
               mb="10px"
               fontWeight="bold"
             >
-              Based on Current Trends
+              {t("based_on_current_trends")}{" "}
             </Typography>
             {isLoadingColumn1 ? (
               <Box
@@ -342,7 +340,7 @@ const Trendspage = () => {
               mb="10px"
               fontWeight="bold"
             >
-              Based on Historical Trends
+              {t("based_on_historical_trends")}{" "}
             </Typography>
 
             {isLoadingColumn2 ? (

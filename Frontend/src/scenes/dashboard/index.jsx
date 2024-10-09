@@ -17,14 +17,6 @@ import {
   MenuItem,
   FormLabel,
 } from "@mui/material";
-// import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-// import CloseIcon from "@mui/icons-material/Close";
-// import React, { useEffect, useCallback, useState } from "react";
-// import { useDropzone } from "react-dropzone";
-// import Header from "../../components/Header";
-// import LineChart from "../../components/LineChart";
-// import ProgressCircle from "../../components/ProgressCircle";
-// import { tokens } from "../../theme";
 
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import CloseIcon from "@mui/icons-material/Close";
@@ -34,9 +26,10 @@ import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
 import ProgressCircle from "../../components/ProgressCircle";
 import { tokens } from "../../theme";
-
+import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
+  const { t } = useTranslation(); // Adding the translation hook
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isXs = useMediaQuery(theme.breakpoints.down("xs"));
@@ -122,7 +115,7 @@ const Dashboard = () => {
     if (searchType === "text") {
       const searchQuery = searchInputRef.current.value;
       // fetch("/api/ensemble", {
-        fetch("https://factcheckerbtp.vishvasnews.com/api/ensemble", {
+      fetch("https://factcheckerbtp.vishvasnews.com/api/ensemble", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -224,7 +217,6 @@ const Dashboard = () => {
         });
     }
   };
-
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     setSelectedImageFile(file);
@@ -251,28 +243,18 @@ const Dashboard = () => {
     <Box mt="40px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header
-          title="MESSAGE CHECK "
+          title={t("message_check")} // Using key from en.json
           subtitle={
             <>
-              Welcome to MESSAGE CHECK!
+              {t("welcome_message_check")}
               <br /> <br />
-              Want to{" "}
-              <b>
-                verify the authenticity of a message or image? Or, a social
-                media post ?{" "}
-              </b>
+              {t("verify_authenticity")}
               <br />
-              Use the search bar below by inserting a query in text or uploading
-              the image.
+              {t("use_search_bar")}
               <br /> <br />
-              The system will show posts with similar misinformation and how
-              they were debunked by fact-checkers at Vishvas News.
+              {t("system_info")}
               <br />
-              You can also search for{" "}
-              <b>
-                debunked dis/misinformation about important topics and persons{" "}
-              </b>{" "}
-              using keywords.
+              {t("important_topics")}
             </>
           }
         />
@@ -280,7 +262,7 @@ const Dashboard = () => {
 
       <Box mb="20px" display="flex" alignItems="center">
         <FormLabel component="legend" sx={{ marginRight: 2, color: "black" }}>
-          Search Type
+          {t("search_type")}
         </FormLabel>
         <RadioGroup
           row
@@ -296,7 +278,7 @@ const Dashboard = () => {
                 sx={{ color: "black", "&.Mui-checked": { color: "black" } }}
               />
             }
-            label="Text"
+            label={t("text")} // Using key for Text label
             sx={{ color: "black" }}
           />
           <FormControlLabel
@@ -306,7 +288,7 @@ const Dashboard = () => {
                 sx={{ color: "black", "&.Mui-checked": { color: "black" } }}
               />
             }
-            label="Image Upload"
+            label={t("image_upload")} // Using key for Image Upload label
             sx={{ color: "black" }}
           />
         </RadioGroup>
@@ -317,7 +299,7 @@ const Dashboard = () => {
           <TextField
             inputRef={searchInputRef}
             variant="outlined"
-            label="Search"
+            label={t("search")} // Replacing with i18n key for Search
             size="medium"
             fullWidth
             InputLabelProps={{
@@ -352,7 +334,7 @@ const Dashboard = () => {
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             variant="outlined"
-            label="Image URL"
+            label={t("image_url")}
             size="medium"
             fullWidth
             InputLabelProps={{
@@ -451,7 +433,8 @@ const Dashboard = () => {
               </Box>
             ) : (
               <Typography style={{ color: "black" }}>
-                Drag 'n' drop an image here, or click to select one (jpeg/png)
+                {/* {t("drag_drop_image")} */}
+                {t("drag_drop_image")}
               </Typography>
             )}
           </Box>
@@ -471,25 +454,14 @@ const Dashboard = () => {
             width: "100px",
           }}
         >
-          Search
+          {t("search")}
         </Button>
       </Box>
 
       {isSearchInitiated && apiCallCompleted && (
         <Box mt={3} mb={3}>
           <Typography variant="body1" sx={{ color: "black" }}>
-            Your query has been matched with a large set of debunked
-            news-stories in the Vishwas News database, using multiple AI-based
-            text matching methods. The “Top Matches” list shows some of the
-            news-stories that are a combination of most recent and most relevant
-            (similar) to your query. The percentage score indicates the match of
-            your query with the closest matching news-story that appears at the
-            top of the list. Other similar news-stories are also shown for your
-            information. If your query does not show a relevant match, it is
-            automatically re-directed to the team of fact-checkers at Vishvas
-            News. If the claim contained in the query is dis/misinformation,
-            they verify and debunk it. The fact-check is then published on the
-            Vishvas News website.
+            {t("information")}
           </Typography>
         </Box>
       )}
@@ -504,7 +476,7 @@ const Dashboard = () => {
         >
           <CircularProgress sx={{ color: colors.blueAccent[600] }} />
           <Typography variant="h6" sx={{ mt: 2 }}>
-            Loading...
+            {t("loading")}{" "}
           </Typography>
         </Box>
       ) : (
@@ -558,8 +530,7 @@ const Dashboard = () => {
                                     color={"black"}
                                     sx={{ mt: "15px" }}
                                   >
-                                    This claim does not have any significant
-                                    match with debunked stories in our DB.
+                                    {t("no_match_message")}
                                   </Typography>
                                 )}
                                 <Typography
@@ -568,14 +539,7 @@ const Dashboard = () => {
                                     color: "black",
                                   }}
                                 >
-                                  Disclaimer: This section of the website is run
-                                  by an AI tool which makes decisions based on
-                                  deep learning mechanisms. The parties shall
-                                  not bear any liability of the decisions made
-                                  by the tool, but would ensure to take down any
-                                  wrong decision as and when highlighted by any
-                                  person or authority with sufficient proof and
-                                  justification.
+                                  {t("disclaimer")}
                                 </Typography>
                               </Box>
                             )}
@@ -605,7 +569,7 @@ const Dashboard = () => {
                                 fontWeight="600"
                                 sx={{ mt: "15px" }}
                               >
-                                Top Matches
+                                {t("top_matches")}
                               </Typography>
                               <Box>
                                 <Button
@@ -703,7 +667,7 @@ const Dashboard = () => {
                               ))
                             ) : (
                               <Typography color="error">
-                                Error: Results are not available.
+                                {t("error_results_not_available")}{" "}
                               </Typography>
                             )}
                           </Box>
@@ -724,7 +688,7 @@ const Dashboard = () => {
                                 fontWeight="600"
                                 color={colors.grey[100]}
                               >
-                                Timeline
+                                {t("timeline")}{" "}
                               </Typography>
                             </Box>
                             <Box height="250px">
@@ -736,8 +700,8 @@ const Dashboard = () => {
                               align="center"
                               mt={2}
                             >
-                              The graph depicts the number of fact-checks every
-                              year on the subject/claim being searched.
+                              {t("timeline_description")}{" "}
+                              {/* i18n key for timeline description */}
                             </Typography>
                           </Box>
                         </Grid>
@@ -769,8 +733,10 @@ const Dashboard = () => {
                                       color={colors.greenAccent[100]}
                                       sx={{ mt: "15px" }}
                                     >
-                                      This claim has up to {highestMatch}% match
-                                      with debunked stories in our Database
+                                      {t("claim_match_message", {
+                                        highestMatch,
+                                      })}
+                                      {/* i18n key for match percentage */}
                                     </Typography>
                                   </>
                                 ) : (
@@ -779,8 +745,7 @@ const Dashboard = () => {
                                     color={colors.greenAccent[100]}
                                     sx={{ mt: "15px" }}
                                   >
-                                    This claim does not have any significant
-                                    match with debunked stories in our DB.
+                                    {t("no_match_message")}
                                   </Typography>
                                 )}
                                 <Typography
@@ -789,14 +754,7 @@ const Dashboard = () => {
                                     color: "black",
                                   }}
                                 >
-                                  Disclaimer: This section of the website is run
-                                  by an AI tool which makes decisions based on
-                                  deep learning mechanisms. The parties shall
-                                  not bear any liability of the decisions made
-                                  by the tool, but would ensure to take down any
-                                  wrong decision as and when highlighted by any
-                                  person or authority with sufficient proof and
-                                  justification.
+                                  {t("disclaimer")}
                                 </Typography>
                               </Box>
                             )}
@@ -816,7 +774,7 @@ const Dashboard = () => {
                                 fontWeight="600"
                                 color={colors.grey[100]}
                               >
-                                Timeline
+                                {t("timeline")}{" "}
                               </Typography>
                             </Box>
                             <Box height="250px">
@@ -828,8 +786,7 @@ const Dashboard = () => {
                               align="center"
                               mt={2}
                             >
-                              The graph depicts the number of fact-checks every
-                              year on the subject/claim being searched.
+                              {t("timeline_description")}
                             </Typography>
                           </Box>
                         </Grid>
@@ -851,7 +808,7 @@ const Dashboard = () => {
                                 fontWeight="600"
                                 sx={{ mt: "15px" }}
                               >
-                                Top Matches
+                                {t("top_matches")}
                               </Typography>
                               <Box>
                                 <Button
@@ -942,7 +899,8 @@ const Dashboard = () => {
                               ))
                             ) : (
                               <Typography color="error">
-                                Error: Results are not available.
+                                {t("error_results_not_available")}{" "}
+                                {/* i18n key for error message */}
                               </Typography>
                             )}
                           </Box>

@@ -10,6 +10,7 @@ import {
   ListItemText,
   useMediaQuery,
   Drawer,
+  Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -18,6 +19,7 @@ import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { ColorModeContext, tokens } from "../../theme";
 import { AuthContext } from "../../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 const Sidebar = () => {
   const theme = useTheme();
@@ -26,6 +28,7 @@ const Sidebar = () => {
   const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
   const colorMode = useContext(ColorModeContext);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation(); // Hook for translations
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
 
@@ -54,6 +57,11 @@ const Sidebar = () => {
       alert("Logout failed.");
     }
   };
+
+  const handleLanguageChange = (lang) => {
+    i18n.changeLanguage(lang);
+  };
+
 
   const menuItems = [
     {
@@ -129,6 +137,28 @@ const Sidebar = () => {
             </ListItem>
           ))}
         </List>
+      </Box>
+      <Box
+        sx={{
+          padding: "20px",
+          textAlign: "center",
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleLanguageChange("en")}
+        >
+          English
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleLanguageChange("hi")}
+          sx={{ ml: 2 }}
+        >
+          हिंदी
+        </Button>
       </Box>
     </Box>
   );
