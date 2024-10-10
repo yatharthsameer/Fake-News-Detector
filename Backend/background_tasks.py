@@ -216,7 +216,7 @@ def fetch_and_store_top_trends():
 
         # Prepare the response in the required format
         response_data = [
-            {result["query"]: result["result_data"][:1]} for result in top_k_results
+            {result["query"]: result["result_data"][:2]} for result in top_k_results
         ]
 
         # print(response_data)
