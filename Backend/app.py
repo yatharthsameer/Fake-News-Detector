@@ -735,10 +735,9 @@ def stories_by_date():
     specified_date_str = client_data.get("date", "")
     if not specified_date_str:
         return jsonify({"error": "No date provided"}), 400
-    
+
     if "Sept" in specified_date_str:
         specified_date_str = specified_date_str.replace("Sept", "Sep")
-
 
     try:
         specified_date = datetime.strptime(specified_date_str, "%d %b %Y")
@@ -751,6 +750,7 @@ def stories_by_date():
     end_date = specified_date + timedelta(days=3)
 
     matching_stories = []
+    seen_urls = set()  # Set to keep track of already added story URLs
 
     for story_id, story in data.items():
         story_date_str = story.get("Story_Date", "")
@@ -759,13 +759,18 @@ def stories_by_date():
         if story_date:
             story_date_this_year = replace_year_safe(story_date, specified_date.year)
             if story_date_this_year and start_date <= story_date_this_year <= end_date:
-                matching_stories.append(
-                    {
-                        "percentage": 100,
-                        "data": story,
-                        "original_date": story_date,
-                    }  # Store original date for sorting
-                )
+                story_url = story.get("Story_URL", "")
+
+                # Add the story only if its URL has not been added yet
+                if story_url and story_url not in seen_urls:
+                    matching_stories.append(
+                        {
+                            "percentage": 100,
+                            "data": story,
+                            "original_date": story_date,
+                        }
+                    )
+                    seen_urls.add(story_url)  # Mark this URL as seen
 
     # Sort the matching stories by 'original_date' in descending order
     matching_stories.sort(key=lambda x: x["original_date"], reverse=True)
@@ -775,6 +780,7 @@ def stories_by_date():
         del story["original_date"]
 
     return jsonify(matching_stories)
+
 
 if __name__ == "__main__":
     # start_scheduler()

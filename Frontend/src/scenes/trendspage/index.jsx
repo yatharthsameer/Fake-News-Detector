@@ -22,7 +22,7 @@ const Trendspage = () => {
   const [isLoadingColumn2, setIsLoadingColumn2] = useState(false);
   const [currentPageColumn2, setCurrentPageColumn2] = useState(1); // Use this state
   const [errorColumn2, setErrorColumn2] = useState(null);
-  const itemsPerPageColumn1 = 6; // Show 5 results per page in column 1
+  const itemsPerPageColumn1 = 3; // Show 5 results per page in column 1
   const itemsPerPageColumn2 = 7;
   const { t } = useTranslation(); // Translation hook
 
@@ -107,101 +107,105 @@ const Trendspage = () => {
       prevPage > 1 ? prevPage - 1 : prevPage
     );
   };
+const renderResultsColumn1 = (
+  results,
+  currentPage,
+  handlePrev,
+  handleNext,
+  itemsPerPage
+) => {
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = results.slice(indexOfFirstItem, indexOfLastItem);
 
-  const renderResultsColumn1 = (
-    results,
-    currentPage,
-    handlePrev,
-    handleNext,
-    itemsPerPage
-  ) => {
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = results.slice(indexOfFirstItem, indexOfLastItem);
+  return (
+    <>
+      {currentItems.map((result, index) => (
+        <Box key={index} mb="20px">
+          {/* Trend Title */}
+          <Typography variant="h5" color={"#00ab05"} mb="10px">
+            {result.query}
+          </Typography>
 
-    return (
-      <>
-        {currentItems.map((result, index) => (
-          <Box key={index} mb="20px">
-            {result.results.map((item, subIndex) => (
-              <Box
-                key={subIndex}
-                display="flex"
-                flexDirection="row"
-                alignItems="flex-start"
-                borderBottom={`1px solid ${colors.primary[400]}`}
-                p="10px 0"
+          {/* Display up to 2 news objects */}
+          {result.results.slice(0, 2).map((item, subIndex) => (
+            <Box
+              key={subIndex}
+              display="flex"
+              flexDirection="row"
+              alignItems="flex-start"
+              borderBottom={`1px solid ${colors.primary[400]}`}
+              p="10px 0"
+            >
+              <ButtonBase
+                onClick={() => window.open(item.data.Story_URL, "_blank")}
+                sx={{
+                  marginRight: "20px",
+                  borderRadius: "4px",
+                  overflow: "hidden",
+                }}
               >
-                <ButtonBase
-                  onClick={() => window.open(item.data.Story_URL, "_blank")}
-                  sx={{
-                    marginRight: "20px",
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                  }}
+                <img
+                  src={
+                    item.data.img && item.data.img.length > 0
+                      ? item.data.img[0]
+                      : ""
+                  }
+                  alt="News"
+                  width={isMobile ? "250px" : "150px"}
+                  height="95px"
+                  style={{ marginRight: "20px" }}
+                />
+              </ButtonBase>
+              <div>
+                <Typography
+                  color={colors.greenAccent[100]}
+                  variant="h6"
+                  fontWeight="600"
                 >
-                  <img
-                    src={
-                      item.data.img && item.data.img.length > 0
-                        ? item.data.img[0]
-                        : ""
-                    }
-                    alt="News"
-                    width={isMobile ? "250px" : "150px"} // Conditional width
-                    height="95px" // Fixed height
-                    style={{ marginRight: "20px" }}
-                  />
-                </ButtonBase>
-                <div>
-                  <Typography variant="h5" color={"#00ab05"}>
-                    {result.query}
-                  </Typography>
-                  <Typography
-                    color={colors.greenAccent[100]}
-                    variant="h6"
-                    fontWeight="600"
+                  <a
+                    href={item.data.Story_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: colors.greenAccent[100],
+                      textDecoration: "none",
+                    }}
                   >
-                    <a
-                      href={item.data.Story_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        color: colors.greenAccent[100],
-                        textDecoration: "none",
-                      }}
-                    >
-                      {item.data.Headline}
-                    </a>
-                  </Typography>
-                  <Typography color={colors.grey[100]}>
-                    {item.data.Story_Date}
-                  </Typography>
-                </div>
-              </Box>
-            ))}
-          </Box>
-        ))}
-        <Box display="flex" justifyContent="center" mt="20px">
-          <Button
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-            variant="contained"
-            sx={{ mr: 1 }}
-          >
-            Prev
-          </Button>
-          <Button
-            onClick={handleNext}
-            disabled={currentPage === Math.ceil(results.length / itemsPerPage)}
-            variant="contained"
-            sx={{ ml: 1 }}
-          >
-            Next
-          </Button>
+                    {item.data.Headline}
+                  </a>
+                </Typography>
+                <Typography color={colors.grey[100]}>
+                  {item.data.Story_Date}
+                </Typography>
+              </div>
+            </Box>
+          ))}
         </Box>
-      </>
-    );
-  };
+      ))}
+      <Box display="flex" justifyContent="center" mt="20px">
+        <Button
+          onClick={handlePrev}
+          disabled={currentPage === 1}
+          variant="contained"
+          sx={{ mr: 1 }}
+        >
+          Prev
+        </Button>
+        <Button
+          onClick={handleNext}
+          disabled={currentPage === Math.ceil(results.length / itemsPerPage)}
+          variant="contained"
+          sx={{ ml: 1 }}
+        >
+          Next
+        </Button>
+      </Box>
+    </>
+  );
+};
+
+
 
   const renderResultsColumn2 = (
     results,

@@ -10,7 +10,8 @@ import {
   ListItemText,
   useMediaQuery,
   Drawer,
-  Button,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -28,7 +29,7 @@ const Sidebar = () => {
   const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
   const colorMode = useContext(ColorModeContext);
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation(); // Hook for translations
+  const { i18n } = useTranslation(); // Translation hook
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
 
@@ -58,10 +59,10 @@ const Sidebar = () => {
     }
   };
 
-  const handleLanguageChange = (lang) => {
-    i18n.changeLanguage(lang);
+  const handleLanguageToggle = () => {
+    const newLanguage = i18n.language === "en" ? "hi" : "en";
+    i18n.changeLanguage(newLanguage);
   };
-
 
   const menuItems = [
     {
@@ -144,21 +145,23 @@ const Sidebar = () => {
           textAlign: "center",
         }}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleLanguageChange("en")}
-        >
-          English
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleLanguageChange("hi")}
-          sx={{ ml: 2 }}
-        >
-          हिंदी
-        </Button>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={i18n.language === "hi"}
+              onChange={handleLanguageToggle}
+              color="primary"
+            />
+          }
+          label={i18n.language === "en" ? "EN" : "HI"}
+          labelPlacement="top"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        />
       </Box>
     </Box>
   );
