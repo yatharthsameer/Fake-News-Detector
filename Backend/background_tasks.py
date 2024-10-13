@@ -5,7 +5,7 @@ from google_trends import daily_trends, realtime_trends
 import spacy
 
 
-NUM_TRENDS = 6
+NUM_TRENDS = 10
 
 
 TEST_LOCAL = __name__ == '__main__'
