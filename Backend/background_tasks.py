@@ -5,8 +5,7 @@ from google_trends import daily_trends, realtime_trends
 import spacy
 
 
-NUM_TRENDS = 6
-
+NUM_TRENDS = 10
 
 
 TEST_LOCAL = __name__ == '__main__'
@@ -49,14 +48,12 @@ def extract_entity_groups(queries):
                 allqueryset.add(text.lower())
             # continue
 
-
         # GROUP 3
         if doc.ents:
             tmp = " ".join(map(str, doc.ents))
             if tmp.lower() not in allqueryset:
                 groups[2].append(tmp)
                 allqueryset.add(tmp.lower())
-        
 
             # GROUP 4
             PERs = [str(tok) for tok in doc.ents if tok.label_ == "PERSON"]
@@ -66,7 +63,7 @@ def extract_entity_groups(queries):
                     groups[3].append(tmp)
                     allqueryset.add(tmp.lower())
                 # continue
-            
+
             ORGs = [str(tok) for tok in doc.ents if tok.label_ == "ORG"]
             if ORGs:
                 tmp = max(ORGs, key=len)
@@ -74,7 +71,6 @@ def extract_entity_groups(queries):
                     groups[3].append(tmp)
                     allqueryset.add(tmp.lower())
                 # continue
-            
 
         # GROUP 5
         NNPs = [str(tok) for tok in doc if tok.tag_ == "NNP"]
@@ -84,28 +80,24 @@ def extract_entity_groups(queries):
                 groups[4].append(tmp)
                 allqueryset.add(tmp.lower())
 
-        # GROUP 6
+            # GROUP 6
             tmp = max(NNPs, key=len)
             if tmp.lower() not in allqueryset:
                 groups[5].append(tmp)
                 allqueryset.add(tmp.lower())
-
 
     return groups
 
 # ---------------------------------------------------
 
 
-
 def fetch_and_store_top_trends():
-
     try:
         print("Fetching and storing top trends...")
         # Fetch daily trends for today and yesterday
         today_trends = daily_trends(country="IN")
 
         yesterday = datetime.today() - timedelta(days=1)
-        
         yesterday_str = yesterday.strftime("%Y%m%d")
         yesterday_trends = daily_trends(date=yesterday_str, country="IN")
 
@@ -123,15 +115,17 @@ def fetch_and_store_top_trends():
 
         for group in extracted_groups:
             group_results = []
+            seen_urls = set()  # Set to keep track of already added URLs
 
             print("\n\n")
-            print("#"*100)
-            print("#"*100)
+            print("#" * 100)
+            print("#" * 100)
             print(group)
-                
+
             for query in group:
                 print("\n")
-                print("#"*100)
+                print("#" * 100)
+
                 # Call the rank_documents_bm25_bert function for each query
                 if not query:
                     continue
@@ -144,17 +138,15 @@ def fetch_and_store_top_trends():
                     print("Skipping:", query)
                     continue
 
-
-
                 if not (query.startswith('"') and query.endswith('"')):
                     query = f'"{query}"'
 
                 print(query)
-        
+
                 if not TEST_LOCAL:
                     # Create the request with the query wrapped in double quotes
                     req = {"query": query}
-                
+
                     with app.test_request_context(json=req):
                         from app import (
                             rank_documents_bm25_bert,
@@ -165,23 +157,36 @@ def fetch_and_store_top_trends():
                         if response.status_code == 200:
                             result_data = response.json
                             if result_data:
-                                top_story_percentage = (
-                                    result_data[0]["percentage"] if result_data else 0
-                                )
-                                group_results.append(
-                                    {
-                                        "query": query,
-                                        "top_story_percentage": top_story_percentage,
-                                        "result_data": result_data,
-                                    }
-                                )    
-                                poswordset.update(query[1:-1].lower().split())
+                                # Filter out results with duplicate URLs
+                                filtered_data = []
+                                for story in result_data:
+                                    story_url = story["data"].get("Story_URL", "")
+                                    if story_url not in seen_urls:
+                                        filtered_data.append(story)
+                                        seen_urls.add(story_url)  # Mark URL as seen
 
+                                if filtered_data:
+                                    top_story_percentage = (
+                                        filtered_data[0]["percentage"]
+                                        if filtered_data
+                                        else 0
+                                    )
+                                    group_results.append(
+                                        {
+                                            "query": query,
+                                            "top_story_percentage": top_story_percentage,
+                                            "result_data": filtered_data,
+                                        }
+                                    )
+                                    poswordset.update(query[1:-1].lower().split())
 
                 else:
                     idx, scores = model.rank(query)
                     percent = (
-                        max(list(scores[:3]) + [model.match_percent(query, origdata[idx[0]])])
+                        max(
+                            list(scores[:3])
+                            + [model.match_percent(query, origdata[idx[0]])]
+                        )
                         if len(idx) > 0
                         else None
                     )
@@ -190,38 +195,30 @@ def fetch_and_store_top_trends():
                             {
                                 "query": query,
                                 "top_story_percentage": percent,
-                                "result_data": [origdata[x]["Headline"] for x in idx]
+                                "result_data": [origdata[x]["Headline"] for x in idx],
                             }
-                        )    
+                        )
                         poswordset.update(query[1:-1].lower().split())
                         print(poswordset)
 
-
-
             # Sort combined results based on top story percentage
             sorted_results = sorted(
-                group_results, 
-                # key=lambda x: x["top_story_percentage"], 
-                key=lambda x: len(x["query"]), 
-                reverse=True
+                group_results,
+                key=lambda x: len(x["query"]),
+                reverse=True,
             )
-            
 
             combined_results.extend(sorted_results)
             if len(combined_results) >= NUM_TRENDS:
                 break
 
-            
-
         # Get the top k queries with the highest match percentages
         top_k_results = combined_results[:NUM_TRENDS]
 
-        # Prepare the response in the required format
+        # Prepare the response in the required format, limiting to 2 stories per query
         response_data = [
             {result["query"]: result["result_data"][:2]} for result in top_k_results
         ]
-
-        # print(response_data)
 
         # Store the response data in a file
         with open("top_trends_cache.json", "w", encoding="utf-8") as cache_file:
@@ -229,9 +226,6 @@ def fetch_and_store_top_trends():
         print("Top trends stored successfully!")
     except Exception as e:
         print(f"Error fetching trends: {str(e)}")
-
-
-
 
 
 if TEST_LOCAL:
