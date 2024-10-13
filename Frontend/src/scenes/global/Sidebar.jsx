@@ -91,9 +91,9 @@ const Sidebar = () => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-      }}
-    >
-      <Box>
+            }}
+          >
+            <Box>
         <Box
           sx={{
             display: "flex",
@@ -109,7 +109,7 @@ const Sidebar = () => {
               width: "100%",
               cursor: "pointer",
             }}
-            onClick={() => navigate("/")}
+            onClick={() => window.open("https://www.vishvasnews.com/", "_blank")}
           />
         </Box>
         <Divider />
@@ -153,7 +153,7 @@ const Sidebar = () => {
               color="primary"
             />
           }
-          label={i18n.language === "en" ? "EN" : "HI"}
+          label={i18n.language === "en" ? "ENGLISH" : "HINDI"}
           labelPlacement="top"
           sx={{
             display: "flex",

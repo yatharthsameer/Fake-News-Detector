@@ -420,6 +420,15 @@ def upload_image_url():
             os.remove(temp_image_path)
         return jsonify({"error": str(e)}), 500
 
+# -------------
+
+
+
+
+
+
+
+
 
 from BERTClasses import bm25, ftsent, bertscore, load_data, ensemble
 
@@ -596,6 +605,12 @@ def append_story(request_data):
     return {"message": "Data appended and images indexed successfully"}, 200
 
 
+
+# ----------------------------------------------
+
+
+
+
 @app.route("/api/ensemble", methods=["POST"])
 def rank_documents_bm25_bert():
     req = request.json
@@ -633,6 +648,10 @@ def rank_documents_bm25_bert():
     return jsonify(results)
 
 
+
+
+
+# ---------------------------------------
 def rank_documents_bm25_bert_trends():
     req = request.json
     query = req.get("query", "")
@@ -699,6 +718,9 @@ def top_trends():
         return jsonify({"error": str(e)}), 500
 
 
+
+
+# ---------------------------------------------
 import re
 from datetime import datetime, timedelta
 # Load the data from the JSON file

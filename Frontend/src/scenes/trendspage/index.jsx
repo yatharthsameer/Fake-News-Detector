@@ -160,7 +160,7 @@ const renderResultsColumn1 = (
               <div>
                 <Typography
                   color={colors.greenAccent[100]}
-                  variant="h6"
+                  variant="h5"
                   fontWeight="600"
                 >
                   <a
@@ -188,7 +188,13 @@ const renderResultsColumn1 = (
           onClick={handlePrev}
           disabled={currentPage === 1}
           variant="contained"
-          sx={{ mr: 1 }}
+          sx={{
+            mr: 1,
+            mb: 5,
+            backgroundColor: "#0b9933",
+            color: "white",
+            "&:hover": { backgroundColor: "#9E9E9E" },
+          }}
         >
           Prev
         </Button>
@@ -196,7 +202,13 @@ const renderResultsColumn1 = (
           onClick={handleNext}
           disabled={currentPage === Math.ceil(results.length / itemsPerPage)}
           variant="contained"
-          sx={{ ml: 1 }}
+          sx={{
+            mr: 1,
+            mb: 5,
+            backgroundColor: "#0b9933",
+            color: "white",
+            "&:hover": { backgroundColor: "#9E9E9E" },
+          }}
         >
           Next
         </Button>
@@ -278,7 +290,12 @@ const renderResultsColumn1 = (
             onClick={handlePrev}
             disabled={currentPage === 1}
             variant="contained"
-            sx={{ mr: 1 }}
+            sx={{
+              mr: 1,
+              backgroundColor: "#0b9933",
+              color: "white",
+              "&:hover": { backgroundColor: "#9E9E9E" },
+            }}
           >
             Prev
           </Button>
@@ -286,7 +303,12 @@ const renderResultsColumn1 = (
             onClick={handleNext}
             disabled={currentPage === Math.ceil(results.length / itemsPerPage)}
             variant="contained"
-            sx={{ ml: 1 }}
+            sx={{
+              mr: 1,
+              backgroundColor: "#0b9933",
+              color: "white",
+              "&:hover": { backgroundColor: "#9E9E9E" },
+            }}
           >
             Next
           </Button>

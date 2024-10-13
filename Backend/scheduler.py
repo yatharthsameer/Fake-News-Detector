@@ -16,6 +16,8 @@ def run_scheduler():
     print("Scheduled 17:00")
     schedule.every().day.at("23:00").do(fetch_and_store_top_trends)
     print("Scheduled 23:00")
+
+    
     # Run the task once when the server starts
     fetch_and_store_top_trends()
 
