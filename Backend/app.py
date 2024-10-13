@@ -423,13 +423,6 @@ def upload_image_url():
 # -------------
 
 
-
-
-
-
-
-
-
 from BERTClasses import bm25, ftsent, bertscore, load_data, ensemble
 
 # Load the documents at app start to avoid reloading them on each request
@@ -605,10 +598,7 @@ def append_story(request_data):
     return {"message": "Data appended and images indexed successfully"}, 200
 
 
-
 # ----------------------------------------------
-
-
 
 
 @app.route("/api/ensemble", methods=["POST"])
@@ -625,30 +615,40 @@ def rank_documents_bm25_bert():
     # Using combined BM25 and BERTScore model to rank documents
     idx, scores = model.rank(query)
     results = []
+    seen_urls = set()  # Set to track seen Story_URLs
+
     print(type(idx))
     percent = (
-        round(20 * max(list(scores[:3]) + [model.match_percent(query, origdata[idx[0]])] )) * 5
+        round(
+            20 * max(list(scores[:3]) + [model.match_percent(query, origdata[idx[0]])])
+        )
+        * 5
         if len(idx) > 0
         else None
     )
 
-    origkeys = [origdata[i]['key'] for i in idx]
+    origkeys = [origdata[i]["key"] for i in idx]
 
     for doc_id, score in zip(origkeys[:10], scores[:10]):
-        # doc_id = str(i)  # Convert index to integer
-        print(doc_id)
-        # doc_obj = data[doc_id]  # Access the corresponding document object
+        # Access the corresponding document object
+        story = data[doc_id]
+        story_url = story.get("Story_URL", "")
+
+        # Skip the story if it has already been added
+        if story_url in seen_urls:
+            continue
+
+        # Add the story URL to the seen list
+        seen_urls.add(story_url)
 
         results.append(
             {
                 "percentage": percent,
-                "data": data[doc_id],  # Include the whole news object
+                "data": story,  # Include the whole news object
             }
         )
+
     return jsonify(results)
-
-
-
 
 
 # ---------------------------------------
@@ -716,8 +716,6 @@ def top_trends():
     except Exception as e:
         print(f"Error fetching cached trends: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
-
 
 
 # ---------------------------------------------
