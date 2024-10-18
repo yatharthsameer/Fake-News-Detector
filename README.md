@@ -1,6 +1,6 @@
-# MDP Admin Panel for Vishvas News
+# MDP Client Facing Panel for Vishvas News
 
-This is the Admin panel for the Multimodal Data Processing (MDP) system of Vishvas News, built in collaboration with IIT Kharagpur.
+This is the Client panel for the Multimodal Data Processing (MDP) system of Vishvas News, built in collaboration with IIT Kharagpur.
 
 ## Frontend Setup
 
