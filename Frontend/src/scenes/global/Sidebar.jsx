@@ -106,7 +106,8 @@ const Sidebar = () => {
             alt="company-logo"
             src={`../../VNlogo.png`}
             style={{
-              width: "100%",
+              width: "90%",
+              paddingTop: "20px",
               cursor: "pointer",
             }}
             onClick={() => window.open("https://www.vishvasnews.com/", "_blank")}
@@ -182,6 +183,7 @@ const Sidebar = () => {
             <IconButton onClick={toggleDrawer} sx={{ color: colors.grey[100] }}>
               <MenuOutlinedIcon />
             </IconButton>
+
             <img
               alt="company-logo"
               src={`../../VNlogoWhite.png`}
@@ -190,10 +192,38 @@ const Sidebar = () => {
                 width: 140, // Adjust the size of the logo as needed
                 height: 50,
                 cursor: "pointer",
+                marginRight: 80,
               }}
               onClick={() => navigate("/")}
             />
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={i18n.language === "hi"}
+                    onChange={handleLanguageToggle}
+                    sx={{
+                      "& .MuiSwitch-thumb": {
+                        backgroundColor: "black", // Force the toggle thumb to be black on mobile
+                      },
+                      "& .MuiSwitch-track": {
+                        backgroundColor: "grey !important", // Keep the switch track grey even when toggled
+                        opacity: 1, // Ensure the track remains visible in both states
+                      },
+                    }}
+                  />
+                }
+                label={i18n.language === "en" ? "ENGLISH" : "HINDI"}
+                sx={{
+                  color: "black", // Force the label text color to be black on mobile
+                  "@media (min-width: 600px)": {
+                    color: "inherit", // Revert to default color on larger screens
+                  },
+                }}
+              />
+            </Box>
           </Box>
+
           <Drawer
             open={isOpen}
             onClose={toggleDrawer}

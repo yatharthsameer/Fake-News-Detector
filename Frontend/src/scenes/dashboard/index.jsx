@@ -520,8 +520,9 @@ const Dashboard = () => {
                                       color={colors.greenAccent[100]}
                                       sx={{ mt: "15px" }}
                                     >
-                                      This claim has up to {highestMatch}% match
-                                      with debunked stories in our Database
+                                      {t("claim_match_message", {
+                                        highestMatch,
+                                      })}
                                     </Typography>
                                   </>
                                 ) : (
