@@ -660,8 +660,8 @@ from email.mime.text import MIMEText
 
 def send_email(query, top_results):
     sender = "yatharth.sameer@jagrannewmedia.com"
-    # receiver = "mdp@jagrannewmedia.com"
-    receiver = "thesameerbros@gmail.com"
+    receiver = "mdp@jagrannewmedia.com"
+    # receiver = "thesameerbros@gmail.com"
     subject = "Escalated query from Client MDP website."
 
     # Constructing the email body
