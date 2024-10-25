@@ -600,6 +600,10 @@ def append_story(request_data):
 
 # ----------------------------------------------
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 @app.route("/api/ensemble", methods=["POST"])
 def rank_documents_bm25_bert():
@@ -612,12 +616,10 @@ def rank_documents_bm25_bert():
         data = json.load(file)
     print("Data loaded successfully.")
 
-    # Using combined BM25 and BERTScore model to rank documents
     idx, scores = model.rank(query)
     results = []
-    seen_urls = set()  # Set to track seen Story_URLs
+    seen_urls = set()
 
-    print(type(idx))
     percent = (
         round(
             20 * max(list(scores[:3]) + [model.match_percent(query, origdata[idx[0]])])
@@ -630,25 +632,85 @@ def rank_documents_bm25_bert():
     origkeys = [origdata[i]["key"] for i in idx]
 
     for doc_id, score in zip(origkeys[:10], scores[:10]):
-        # Access the corresponding document object
         story = data[doc_id]
         story_url = story.get("Story_URL", "")
 
-        # Skip the story if it has already been added
         if story_url in seen_urls:
             continue
-
-        # Add the story URL to the seen list
         seen_urls.add(story_url)
 
         results.append(
             {
                 "percentage": percent,
-                "data": story,  # Include the whole news object
+                "data": story,
             }
         )
 
+    # Check if the highest match percentage is less than 70%
+    if percent and percent < 70:
+        send_email(query, results[:3])  # Send email with the top 3 results
+
     return jsonify(results)
+
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+
+def send_email(query, top_results):
+    sender = "yatharth.sameer@jagrannewmedia.com"
+    # receiver = "mdp@jagrannewmedia.com"
+    receiver = "thesameerbros@gmail.com"
+    subject = "Escalated query from Client MDP website."
+
+    # Constructing the email body
+    body = f"<h3>{subject}</h3>"
+    body += f"<p><strong>Query:</strong> {query}</p>"
+    body += "<p>Top 3 Responses:</p><ul>"
+
+    for result in top_results:
+        story_data = result["data"]
+        body += "<li>"
+        body += f"<p><strong>About Person:</strong> {story_data.get('About_Person', 'N/A')}</p>"
+        body += f"<p><strong>About Subject:</strong> {story_data.get('About_Subject', 'N/A')}</p>"
+        body += f"<p><strong>Headline:</strong> {story_data.get('Headline', 'N/A')}</p>"
+        body += (
+            f"<p><strong>Story Date:</strong> {story_data.get('Story_Date', 'N/A')}</p>"
+        )
+        body += f"<p><strong>Story URL:</strong> <a href='{story_data.get('Story_URL', '#')}'>{story_data.get('Story_URL', 'N/A')}</a></p>"
+        body += (
+            f"<p><strong>Claim:</strong> {story_data.get('What_(Claim)', 'N/A')}</p>"
+        )
+        body += f"<p><strong>Tags:</strong> {story_data.get('tags', 'N/A')}</p>"
+        body += f"<p><strong>Match Percentage:</strong> {result.get('percentage', 'N/A')}%</p>"
+
+        # If images are available, list them
+        if "img" in story_data:
+            body += "<p><strong>Images:</strong></p><ul>"
+            for img_url in story_data["img"]:
+                body += f"<li><a href='{img_url}'>{img_url}</a></li>"
+            body += "</ul>"
+
+        body += "</li><br>"
+
+    body += "</ul>"
+
+    # Setting up the email message
+    msg = MIMEMultipart()
+    msg["From"] = sender
+    msg["To"] = receiver
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "html"))
+
+    try:
+        # Send the email via Gmail's SMTP server
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender, "lmzobejrtjalxqrk")
+            server.sendmail(sender, receiver, msg.as_string())
+        print("Email sent successfully.")
+    except Exception as e:
+        print(f"Error sending email: {e}")
 
 
 # ---------------------------------------
