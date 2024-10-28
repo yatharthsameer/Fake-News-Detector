@@ -212,7 +212,6 @@ st.run_index()
 
 from PIL import Image
 
-
 @app.route("/api/upload", methods=["POST"])
 def upload_file():
     file_path = "csvProcessing/allData.json"  # Ensure this path is correct
@@ -231,7 +230,7 @@ def upload_file():
 
     if file:
         try:
-            filename = "test.jpg"
+            filename = "query.jpg"
             filepath = os.path.join("./", filename)
 
             # Check if the uploaded file is PNG and convert it to JPG
@@ -294,6 +293,12 @@ def upload_file():
                     response_data.values(), key=lambda x: x["percentage"], reverse=True
                 )
             ]
+
+            # Check if the highest match percentage is less than 70%
+            if sorted_response and sorted_response[0]["percentage"] < 70:
+                send_email(
+                    "Image Query", sorted_response[:3]
+                )  # Send email with the top 3 results
 
             return jsonify(sorted_response)
         except KeyError as e:
@@ -646,8 +651,8 @@ def rank_documents_bm25_bert():
             }
         )
 
-    # Check if the highest match percentage is less than 70%
-    if percent and percent < 70:
+    # Check if the highest match percentage is less than 70% and query has more than 2 words
+    if percent and percent < 70 and len(query.split()) > 2:
         send_email(query, results[:3])  # Send email with the top 3 results
 
     return jsonify(results)
@@ -658,15 +663,20 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-def send_email(query, top_results):
+def send_email(query_type, top_results):
     sender = "yatharth.sameer@jagrannewmedia.com"
     receiver = "mdp@jagrannewmedia.com"
-    # receiver = "thesameerbros@gmail.com"
-    subject = "Escalated query from Client MDP website."
 
-    # Constructing the email body
+    subject = f"Escalated {query_type} from Client MDP website."
+
+    # Construct the email body
     body = f"<h3>{subject}</h3>"
-    body += f"<p><strong>Query:</strong> {query}</p>"
+    body += f"<p><strong>Query Type:</strong> {query_type}</p>"
+    if query_type == "Image Query":
+        body += (
+            "<p><strong>Note:</strong> This query was made with an uploaded image.</p>"
+        )
+
     body += "<p>Top 3 Responses:</p><ul>"
 
     for result in top_results:
@@ -702,6 +712,18 @@ def send_email(query, top_results):
     msg["To"] = receiver
     msg["Subject"] = subject
     msg.attach(MIMEText(body, "html"))
+
+    # Optionally attach the uploaded image if the query type is an image
+    if query_type == "Image Query":
+        try:
+            with open("query.jpg", "rb") as img_file:
+                img = MIMEText(img_file.read(), "base64", "jpeg")
+                img.add_header(
+                    "Content-Disposition", "attachment", filename="query.jpg"
+                )
+                msg.attach(img)
+        except Exception as e:
+            print(f"Error attaching image: {e}")
 
     try:
         # Send the email via Gmail's SMTP server
